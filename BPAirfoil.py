@@ -112,8 +112,8 @@ class BPAirfoil:
         yT = thickInterp(x)
         yC = camInterp(x)
 
-        yTop = map(add, yC, yT)
-        yBut = map(add, yC, (-1. * yT))
+        yTop = list(map(add, yC, yT))
+        yBut = list(map(add, yC, (-1. * yT)))
 
         pltCam, = plt.plot(x, yC, '--g', label='camber')
         pltThi, = plt.plot(x, yT, '--y', label='thickness')
