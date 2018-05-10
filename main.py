@@ -4,6 +4,7 @@ __status__ = "Development"
 
 import os
 import sys
+import math
 
 from Gmsh import Gmsh
 from Airfoil import Airfoil
@@ -18,6 +19,7 @@ import matplotlib.pyplot as plt
 from openmdao.core.problem import Problem
 from openmdao.core.group import Group
 from openmdao.core.indepvarcomp import IndepVarComp
+from openmdao.core.analysis_error import AnalysisError
 
 GMSH_EXE_PATH = 'gmsh/gmsh.exe'
 #SU2_BIN_PATH = 'D:/prog/portable/Luftfahrt/su2-windows-latest/ExecParallel/bin/'
@@ -36,11 +38,13 @@ if not os.path.isfile(GMSH_EXE_PATH):
     print('gmsh executable could not be found in: ' + GMSH_EXE_PATH)
     sys.exit(0)
 
-MACH_NUMBER = 0.65
+MACH_NUMBER = 0.78 #mach number cruise
 
-#compensate sweep
-sweep25 = 0.
+#compensate sweep deg
+SWEEP_LEADING_EDGE = 45
 
+MACH_SWEEP_COMPENSATED = MACH_NUMBER * math.sin(SWEEP_LEADING_EDGE * math.pi / 180)
+print('sweep compensated mach number: ' + str(MACH_SWEEP_COMPENSATED))
 
 #create working dir if necessary
 if not os.path.isdir(WORKING_DIR):
@@ -55,10 +59,10 @@ if not os.path.isfile(GMSH_EXE_PATH):
 ### default config for SU2 run ###
 config = dict()
 config['PHYSICAL_PROBLEM'] = 'EULER'
-config['MACH_NUMBER'] = str(MACH_NUMBER)
+config['MACH_NUMBER'] = str(MACH_SWEEP_COMPENSATED)
 config['AOA'] = str(2.0)
-#config['FREESTREAM_PRESSURE'] = str(101325.0)
-#config['FREESTREAM_TEMPERATURE'] = str(273.15)
+config['FREESTREAM_PRESSURE'] = str(24999.8) #for altitude 10363 m
+config['FREESTREAM_TEMPERATURE'] = str(220.79) #for altitude 10363 m
 #config['GAS_CONSTANT'] = str(287.87)
 #config['REF_LENGTH'] = str(1.0)
 #config['REF_AREA'] = str(1.0)
@@ -135,6 +139,8 @@ class AirfoilCFD(ExplicitComponent):
                                                      show_plot=False,
                                                      save_plot_path=WORKING_DIR+'/'+projectName+'/airfoil.png',
                                                      param_dump_file=WORKING_DIR+'/'+projectName+'/airfoil.txt')
+        if not self.bzFoil.valid:
+            raise AnalysisError('CabinFitting: invalid BPAirfoil')
         cfd.set_airfoul_coords(airFoilCoords)
         cfd.generate_mesh()
         cfd.su2_fix_mesh()
@@ -228,7 +234,8 @@ class CabinFitting(ExplicitComponent):
             yMaxTop = min(self.air.get_top_y(xFront), self.air.get_top_y(xBack))
             height = yMaxTop - yMinButtom
             iterCounter += 1
-
+        if not self.bzFoil.valid:
+            raise AnalysisError('CabinFitting: invalid BPAirfoil')
 
         #yMinButtom = max(self.air.get_buttom_y(xFront), self.air.get_buttom_y(xBack))
         #yMaxTop = min(self.air.get_top_y(xFront), self.air.get_top_y(xBack))
@@ -337,7 +344,7 @@ if __name__ == '__main__':
 
     #prob.model.add_constraint('cabin_fitter.height', lower=0.090, upper=0.15)
 
-    prob.model.add_constraint('airfoil_cfd.c_l', lower=0.23, upper=1.)
+    prob.model.add_constraint('airfoil_cfd.c_l', lower=0.23, upper=.3)
     prob.model.add_constraint('airfoil_cfd.c_m', lower=-0.05, upper=99.)
 
     prob.setup()
