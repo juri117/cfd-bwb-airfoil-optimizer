@@ -155,11 +155,11 @@ class BPAirfoil:
         py_ur = air.get_buttom_y(px_ur)
         (px_ur, py_ur) = air.rotatePoint((0, 0), (px_ur, py_ur), angle)
 
-        pltTop, = plt.plot(self.topCoords[:,0], self.topCoords[:,1], '-b', label='camber')
-        pltBut, = plt.plot(self.buttomCoords[:,0], self.buttomCoords[:,1], '-b', label='thickness')
+        pltTop, = plt.plot(self.topCoords[:,0], self.topCoords[:,1], '-b', label='airfoil')
+        pltBut, = plt.plot(self.buttomCoords[:,0], self.buttomCoords[:,1], '-b', label='not in use')
         cabin, = plt.plot([px_ol, px_ul, px_ur, px_or, px_ol], [py_ol, py_ul, py_ur, py_or, py_ol], '-r', label='cabin')
 
-        plt.legend(handles=[pltTop, pltBut, cabin])
+        plt.legend(handles=[pltTop, cabin])
         plt.title('Airfoil with cabin')
         plt.axis('equal')
         if save_plot_path != '':

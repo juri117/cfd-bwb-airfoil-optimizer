@@ -156,6 +156,7 @@ class AirfoilCFD(ExplicitComponent):
         cfd.su2_fix_mesh()
         cfd.su2_solve(config)
         totalCL, totalCD, totalCM, totalE = cfd.su2_parse_results()
+        cfd.clean_up()
 
         outputs['c_d'] = totalCD
         outputs['c_l'] = totalCL
@@ -322,7 +323,7 @@ if __name__ == '__main__':
     prob.driver = ScipyOptimizeDriver()
     prob.driver.options['optimizer'] = 'SLSQP'
     prob.driver.options['tol'] = 1e-9
-    prob.driver.options['maxiter'] = 1000
+    prob.driver.options['maxiter'] = 100000
 
     #limits and constraints
     #prob.model.add_design_var('length', lower=0.4, upper=0.5)

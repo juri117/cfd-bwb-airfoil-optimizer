@@ -60,3 +60,15 @@ class CFDrun:
     def su2_parse_results(self):
         totalCL, totalCD, totalCM, totalE = self.su2.parse_force_breakdown('forces_breakdown.dat', working_dir=self.projectDir)
         return totalCL, totalCD, totalCM, totalE
+
+    def clean_up(self):
+        if os.path.isfile(self.projectDir + '/airfoilMesh.su2'):
+            os.remove(self.projectDir + '/airfoilMesh.su2')
+        #if os.path.isfile(self.projectDir + '/airfoilMeshFixed.su2'):
+        #    os.remove(self.projectDir + '/airfoilMeshFixed.su2')
+        if os.path.isfile(self.projectDir + '/restart_flow.dat'):
+            os.remove(self.projectDir + '/restart_flow.dat')
+        if os.path.isfile(self.projectDir + '/original_grid.dat'):
+            os.remove(self.projectDir + '/original_grid.dat')
+        if os.path.isfile(self.projectDir + '/meshFix.cfg'):
+            os.remove(self.projectDir + '/meshFix.cfg')
