@@ -22,6 +22,7 @@ Aero/OpenVSP
 openMDAO
 **/*.ini
 **/*.exe
+**/*.txt
 **/bin/*
 gmsh/*
 su2-windows-latest/*

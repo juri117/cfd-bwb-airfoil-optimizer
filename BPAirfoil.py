@@ -42,11 +42,15 @@ class BPAirfoil:
         self.b_0 = 0.1
         self.b_2 = 0.25
         self.b_17 = 0.9
+
+    def generate_airfoil(self, pointCount, show_plot=True, save_plot_path='', param_dump_file=''):
+        #reset status
+        self.valid = True
+        # check requirenment
         if not (0 < self.b_8 < min(self.y_t, math.sqrt(-2 * self.r_le * self.x_t / 3))):
             print("Parameter b_8 out of bounds!")
             self.valid = False
 
-    def generate_airfoil(self, pointCount, show_plot=True, save_plot_path='', param_dump_file=''):
         # bezier points
         # thickness leading edge
         self.x0_tle = 0
@@ -129,28 +133,117 @@ class BPAirfoil:
             plt.savefig(save_plot_path)
         plt.clf()
         if not param_dump_file == '':
-            ouputF = open(param_dump_file, 'w')
-            ouputF.write('r_le= ' + str(self.r_le) + '\n')
-            ouputF.write('beta_te= ' + str(self.beta_te) + '\n')
-            ouputF.write('dz_te= ' + str(self.dz_te) + '\n')
-            ouputF.write('x_t= ' + str(self.x_t) + '\n')
-            ouputF.write('y_t= ' + str(self.y_t) + '\n')
-
-            ouputF.write('gamma_le= ' + str(self.gamma_le) + '\n')
-            ouputF.write('x_c= ' + str(self.x_c) + '\n')
-            ouputF.write('y_c= ' + str(self.y_c) + '\n')
-            ouputF.write('alpha_te= ' + str(self.alpha_te) + '\n')
-            ouputF.write('z_te= ' + str(self.z_te) + '\n')
-
-            ouputF.write('b_8= ' + str(self.b_8) + '\n')
-            ouputF.write('b_15= ' + str(self.b_15) + '\n')
-            ouputF.write('b_0= ' + str(self.b_0) + '\n')
-            ouputF.write('b_2= ' + str(self.b_2) + '\n')
-            ouputF.write('b_17= ' + str(self.b_17) + '\n')
-            ouputF.close()
+            self.save_parameters_to_file(param_dump_file)
         self.topCoords = np.array([x, yTop]).transpose()
         self.buttomCoords = np.array([x[::-1], yBut[::-1]]).transpose()
         return np.vstack((np.array([x, yTop]).transpose(), np.array([x[::-1], yBut[::-1]]).transpose()))[:-1]
+
+    def plot_airfoil_with_cabin(self, offsetFront, length, height, angle, show_plot=True, save_plot_path=''):
+        air = Airfoil(None)
+        air.set_coordinates(self.topCoords, self.buttomCoords)
+        air.rotate(angle)
+        px_ol = offsetFront
+        py_ol = air.get_top_y(px_ol)
+        (px_ol, py_ol) = self.rotatePoint((0, 0), (px_ol, py_ol), angle)
+        px_ul = offsetFront
+        py_ul = air.get_buttom_y(px_ul)
+        (px_ul, py_ul) = self.rotatePoint((0, 0), (px_ul, py_ul), angle)
+        px_or = offsetFront + length
+        py_or = air.get_top_y(px_or)
+        (px_or, py_or) = self.rotatePoint((0, 0), (px_or, py_or), angle)
+        px_ur = offsetFront + length
+        py_ur = air.get_buttom_y(px_ur)
+        (px_ur, py_ur) = air.rotatePoint((0, 0), (px_ur, py_ur), angle)
+
+        pltTop, = plt.plot(self.topCoords[:,0], self.topCoords[:,1], '-b', label='camber')
+        pltBut, = plt.plot(self.buttomCoords[:,0], self.buttomCoords[:,1], '-b', label='thickness')
+        cabin, = plt.plot([px_ol, px_ul, px_ur, px_or, px_ol], [py_ol, py_ul, py_ur, py_or, py_ol], '-r', label='cabin')
+
+        plt.legend(handles=[pltTop, pltBut, cabin])
+        plt.title('Airfoil with cabin')
+        plt.axis('equal')
+        if save_plot_path != '':
+            plt.savefig(save_plot_path)
+        if show_plot:
+            plt.show()
+        plt.clf()
+
+    def rotatePoint(self, origin, point, angle):
+        angle = angle * math.pi / 180.
+        ox, oy = origin
+        px, py = point
+
+        qx = ox + math.cos(angle) * (px - ox) - math.sin(angle) * (py - oy)
+        qy = oy + math.sin(angle) * (px - ox) + math.cos(angle) * (py - oy)
+        return [qx, qy]
+
+    def save_parameters_to_file(self, file_path):
+        ouputF = open(file_path, 'w')
+        ouputF.write('r_le= ' + str(self.r_le) + '\n')
+        ouputF.write('beta_te= ' + str(self.beta_te) + '\n')
+        ouputF.write('dz_te= ' + str(self.dz_te) + '\n')
+        ouputF.write('x_t= ' + str(self.x_t) + '\n')
+        ouputF.write('y_t= ' + str(self.y_t) + '\n')
+
+        ouputF.write('gamma_le= ' + str(self.gamma_le) + '\n')
+        ouputF.write('x_c= ' + str(self.x_c) + '\n')
+        ouputF.write('y_c= ' + str(self.y_c) + '\n')
+        ouputF.write('alpha_te= ' + str(self.alpha_te) + '\n')
+        ouputF.write('z_te= ' + str(self.z_te) + '\n')
+
+        ouputF.write('b_8= ' + str(self.b_8) + '\n')
+        ouputF.write('b_15= ' + str(self.b_15) + '\n')
+        ouputF.write('b_0= ' + str(self.b_0) + '\n')
+        ouputF.write('b_2= ' + str(self.b_2) + '\n')
+        ouputF.write('b_17= ' + str(self.b_17) + '\n')
+        ouputF.close()
+
+    def read_parameters_from_file(self, file_path):
+        inputF = open(file_path, 'r')
+        lines = inputF.read().splitlines()
+        for l in lines:
+            l = l.strip()
+            l = l.replace(' ', '')
+            l = l.replace('[', '')
+            l = l.replace(']', '')
+            param = l.split('=')
+            if len(param) == 2:
+                try:
+                    if param[0] == 'r_le':
+                        self.r_le = float(param[1])
+                    elif param[0] == 'beta_te':
+                        self.beta_te = float(param[1])
+                    elif param[0] == 'dz_te':
+                        self.dz_te = float(param[1])
+                    elif param[0] == 'x_t':
+                        self.x_t = float(param[1])
+                    elif param[0] == 'y_t':
+                        self.y_t = float(param[1])
+
+                    elif param[0] == 'gamma_le':
+                        self.gamma_le = float(param[1])
+                    elif param[0] == 'x_c':
+                        self.x_c = float(param[1])
+                    elif param[0] == 'y_c':
+                        self.y_c = float(param[1])
+                    elif param[0] == 'alpha_te':
+                        self.alpha_te = float(param[1])
+                    elif param[0] == 'z_te':
+                        self.z_te = float(param[1])
+
+                    elif param[0] == 'b_8':
+                        self.b_8 = float(param[1])
+                    elif param[0] == 'b_15':
+                        self.b_15 = float(param[1])
+                    elif param[0] == 'b_0':
+                        self.b_0 = float(param[1])
+                    elif param[0] == 'b_2':
+                        self.b_2 = float(param[1])
+                    elif param[0] == 'b_17':
+                        self.b_17 = float(param[1])
+                except:
+                    print('ERROR: parsing BZAirfoil parameter from file: ' + file_path)
+        inputF.close()
 
     def get_cooridnates_top_buttom(self, pointCount):
         self.generate_airfoil(pointCount, show_plot=False)

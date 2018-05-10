@@ -105,6 +105,10 @@ class AirfoilCFD(ExplicitComponent):
         self.add_input('b_2', val=0.25, desc='')
         self.add_input('b_17', val=0.9, desc='')
 
+        # just for plotin
+        self.add_input('offsetFront', val=0.1, desc='...')
+        self.add_input('angle', val=.0, desc='...')
+
         ### OUTPUTS
         self.add_output('c_d', val=.2)
         self.add_output('c_l', val=.2)
@@ -139,6 +143,12 @@ class AirfoilCFD(ExplicitComponent):
                                                      show_plot=False,
                                                      save_plot_path=WORKING_DIR+'/'+projectName+'/airfoil.png',
                                                      param_dump_file=WORKING_DIR+'/'+projectName+'/airfoil.txt')
+        self.bzFoil.plot_airfoil_with_cabin(inputs['offsetFront'],
+                                            cabinLength,
+                                            cabinHeigth,
+                                            inputs['angle'],
+                                            show_plot=False,
+                                            save_plot_path=WORKING_DIR+'/'+projectName+'/airfoil_cabin.png')
         if not self.bzFoil.valid:
             raise AnalysisError('CabinFitting: invalid BPAirfoil')
         cfd.set_airfoul_coords(airFoilCoords)
@@ -263,6 +273,7 @@ if __name__ == '__main__':
 
     # load defaults from BPAirfoil
     bp = BPAirfoil()
+    bp.read_parameters_from_file(INPUT_DIR+'/'+'airfoil.txt')
     indeps.add_output('r_le', bp.r_le)
     indeps.add_output('beta_te', bp.beta_te)
     indeps.add_output('dz_te', bp.dz_te)
@@ -285,8 +296,8 @@ if __name__ == '__main__':
     prob.model.add_subsystem('cabin_fitter', CabinFitting())
 
     #prob.model.connect('length', 'cabin_fitter.length')
-    prob.model.connect('offsetFront', 'cabin_fitter.offsetFront')
-    prob.model.connect('angle', 'cabin_fitter.angle')
+    prob.model.connect('offsetFront', ['cabin_fitter.offsetFront', 'airfoil_cfd.offsetFront'])
+    prob.model.connect('angle', ['cabin_fitter.angle', 'airfoil_cfd.angle'])
 
     prob.model.connect('r_le', ['airfoil_cfd.r_le', 'cabin_fitter.r_le'])
     prob.model.connect('beta_te', ['airfoil_cfd.beta_te', 'cabin_fitter.beta_te'])
