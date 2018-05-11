@@ -69,6 +69,7 @@ class SU2:
     def generate_config_file(self, ouput_cfg_file_name, configDict, working_dir='outDir/', default_cfg_file_path='dataIn/default.cfg'):
         inputF =  open(default_cfg_file_path, 'r')
         lines = inputF.read().splitlines()
+        config = configDict.copy()
 
         ouputF = open(working_dir + '/' + ouput_cfg_file_name, 'w')
 
@@ -79,18 +80,18 @@ class SU2:
                     ouputF.write(line + '\n')
                 else:
                     paramName = line.strip().replace(' ','').split('=')[0].upper()
-                    if paramName in configDict.keys():
-                        ouputF.write(paramName + '= ' + configDict[paramName] + '\n')
-                        del configDict[paramName]
+                    if paramName in config.keys():
+                        ouputF.write(paramName + '= ' + config[paramName] + '\n')
+                        del config[paramName]
                     else:
                         ouputF.write(line + '\n')
             else:
                 ouputF.write('\n')
         inputF.close()
         # add remaining config variables if there are any
-        if len(configDict) > 0:
+        if len(config) > 0:
             ouputF.write('\n%remaining custom variables\n')
-            for key, value in configDict.items():
+            for key, value in config.items():
                 ouputF.write(key + '= ' + value + '\n')
         ouputF.close()
 
