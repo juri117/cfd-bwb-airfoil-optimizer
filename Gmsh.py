@@ -19,6 +19,9 @@ class Gmsh:
         self.errorFlag = False
         self.gmshPath = gmsh_path
 
+        self.innerMeshSize = 0.005
+        self.outerMeshSize = 0.5
+
     #runns gmsh.exe from command line with to create a mesh file
     def run_2d_geo_file(self, input_file_name, output_file_name, working_dir='dataOut/', min_mesh_size=1e-10, max_mesh_size=1e22):
         # -2 : mesh 2D
@@ -80,14 +83,13 @@ class Gmsh:
 
         fout = open(working_dir + '/' + output_file_name, 'w')
 
-        lc_name = "airfoil_lc"
         # Format
         # Point(1) = {0, 0, 0, lc};
-        fout.write("%s = 0.005;\n" % lc_name)
+        fout.write("airfoil_lc = %f;\n" % (self.innerMeshSize))
         j = startIndex
         for i in range(n_lines):
-            outputline = "Point(%i) = { %8.8f, %8.8f, %8.8f, %s};\n " \
-                         % (j, x[i], y[i], z[i], lc_name)
+            outputline = "Point(%i) = { %8.8f, %8.8f, %8.8f, airfoil_lc};\n " \
+                         % (j, x[i], y[i], z[i])
             j = j + 1
             fout.write(outputline)
 
@@ -98,22 +100,24 @@ class Gmsh:
 
         # generate circular farfield
         fout.write("radius = %i;\n" % (10))
-        fout.write("farfield_lc = %f;\n" % (0.5))
-        fout.write("Point(1) = {0, 0, 0, farfield_lc};\n")
-        fout.write("Point(2) = {radius, 0, 0, farfield_lc};\n")
-        fout.write("Point(3) = {-radius, 0, 0, farfield_lc};\n")
-        fout.write("Point(4) = {0, -radius, 0, farfield_lc};\n")
-        fout.write("Point(5) = {0, radius, 0, farfield_lc};\n")
-        fout.write("Circle(1) = {5, 1, 2};\n")
-        fout.write("Circle(2) = {2, 1, 4};\n")
-        fout.write("Circle(3) = {4, 1, 3};\n")
-        fout.write("Circle(4) = {3, 1, 5};\n")
-        fout.write("Line Loop(1) = {1, 2, 3, 4};\n")
+        fout.write("farfield_lc = %f;\n" % (self.outerMeshSize))
+        fout.write("Point(11) = {0, 0, 0, farfield_lc};\n")
+        fout.write("Point(12) = {0, -radius, 0, farfield_lc};\n")
+        fout.write("Point(13) = {-radius, 0, 0, farfield_lc};\n")
+        fout.write("Point(14) = {0, radius, 0, farfield_lc};\n")
+        fout.write("Point(15) = {4 * radius, radius, 0, farfield_lc};\n")
+        fout.write("Point(16) = {4 * radius, -radius, 0, farfield_lc};\n")
+        fout.write("Circle(21) = {12, 11, 13};\n")
+        fout.write("Circle(22) = {13, 11, 14};\n")
+        fout.write("Line(25) = {14, 15};\n")
+        fout.write("Line(26) = {15, 16};\n")
+        fout.write("Line(27) = {16, 12};\n")
+        fout.write("Line Loop(1) = {21, 22, 25, 26, 27};\n")
 
         fout.write("Line Loop(2) = {1000};\n")
         fout.write("Plane Surface(2000) = {1, 2};\n")
         fout.write("Physical Line(\"airfoil\") = {1000};\n")
-        fout.write("Physical Line(\"farfield\") = {1, 2, 3, 4};\n")
+        fout.write("Physical Line(\"farfield\") = {21, 22, 25, 26, 27};\n")
         fout.write("Transfinite Line{1000} = 500;\n")
         fout.write("Transfinite Line{3001} = 500;\n")
         #fout.write("Transfinite Surface{2000} = {1, 2};\n")

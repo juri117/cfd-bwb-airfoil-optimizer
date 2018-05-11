@@ -40,7 +40,7 @@ class Airfoil:
             #self.airfoilInterpolTop = interp1d(self.airfoilTop[:,0], self.airfoilTop[:,1], kind=self.INTERPOL_DEG)
             #self.airfoilInterpolButtom = interp1d(self.airfoilButtom[:, 0], self.airfoilButtom[:, 1], kind=self.INTERPOL_DEG)
             self.rotate( 0.)
-        print('done')
+        print('Airfoil init')
 
     def set_coordinates(self, top, buttom):
         self.airfoilTop = top

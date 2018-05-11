@@ -21,7 +21,7 @@ INPUT_DIR = 'dataIn/'
 
 class CFDrun:
 
-    def __init__(self, project_name):
+    def __init__(self, project_name, used_cores=SU2_USED_CORES):
 
         # create project dir if necessary
         self.projectDir = WORKING_DIR + '/' + project_name
@@ -29,7 +29,7 @@ class CFDrun:
         if not os.path.isdir(self.projectDir):
             os.mkdir(self.projectDir)
 
-        self.su2 = SU2(SU2_BIN_PATH, used_cores=SU2_USED_CORES, mpi_exec=OS_MPI_COMMAND)
+        self.su2 = SU2(SU2_BIN_PATH, used_cores=used_cores, mpi_exec=OS_MPI_COMMAND)
 
         machNumber = 0.78
         self.foilCoord = None
@@ -37,7 +37,7 @@ class CFDrun:
         self.gmsh = Gmsh(GMSH_EXE_PATH)
 
     def load_airfoil_from_file(self, file_name):
-        foil = Airfoil(INPUT_DIR + '/' + file_name)
+        foil = Airfoil(file_name)
         self.foilCoord = foil.get_sorted_point_list()
 
     #def load_airfoil_bp(self):
@@ -64,8 +64,10 @@ class CFDrun:
     def clean_up(self):
         if os.path.isfile(self.projectDir + '/airfoilMesh.su2'):
             os.remove(self.projectDir + '/airfoilMesh.su2')
-        #if os.path.isfile(self.projectDir + '/airfoilMeshFixed.su2'):
-        #    os.remove(self.projectDir + '/airfoilMeshFixed.su2')
+        if os.path.isfile(self.projectDir + '/airfoilMeshFixed.su2'):
+            os.remove(self.projectDir + '/airfoilMeshFixed.su2')
+        if os.path.isfile(self.projectDir + '/cfdMpiRun.bat'):
+            os.remove(self.projectDir + '/cfdMpiRun.bat')
         if os.path.isfile(self.projectDir + '/restart_flow.dat'):
             os.remove(self.projectDir + '/restart_flow.dat')
         if os.path.isfile(self.projectDir + '/original_grid.dat'):
