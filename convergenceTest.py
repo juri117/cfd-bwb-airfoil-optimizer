@@ -14,6 +14,7 @@ from BPAirfoil import BPAirfoil
 from CFDrun import CFDrun
 
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 
 
 GMSH_EXE_PATH = 'gmsh/gmsh.exe'
@@ -56,10 +57,10 @@ def run_convergence_analysis():
     config['OUTPUT_FORMAT'] = 'PARAVIEW'
 
 
-    innerMeshSize = np.linspace(0.005, 0.01, 6)
-    outerMeshSize = np.linspace(0.5, 1., 6)
-    #innerMeshSize = np.flip(innerMeshSize, 0)
-    #outerMeshSize = np.flip(outerMeshSize, 0)
+    innerMeshSize = np.linspace(0.001, 0.01, 21)
+    outerMeshSize = np.linspace(0.1, 1., 21)
+    innerMeshSize = np.flip(innerMeshSize, 0)
+    outerMeshSize = np.flip(outerMeshSize, 0)
 
     cdList = np.zeros((len(innerMeshSize),len(outerMeshSize)))
     clList = np.zeros((len(innerMeshSize),len(outerMeshSize)))
@@ -121,26 +122,46 @@ def plot_output_data():
     y = data[:,1]
     cl = data[:,2]
     cd = data[:,3]
+    iters = data[:,6]
+    times = data[:,7]
     xAx = np.unique(x)
     yAx = np.unique(y)
     clMat = np.empty((len(yAx), len(xAx)))
     clMat[:] = np.nan
     cdMat = np.empty((len(yAx), len(xAx)))
     cdMat[:] = np.nan
+    iterMat = np.empty((len(yAx), len(xAx)))
+    iterMat[:] = np.nan
+    timeMat = np.empty((len(yAx), len(xAx)))
+    timeMat[:] = np.nan
 
     for i in range(0, len(cl)):
         clMat[int(np.where(yAx == y[i])[0])][int(np.where(xAx == x[i])[0])] = cl[i]
         cdMat[int(np.where(yAx == y[i])[0])][int(np.where(xAx == x[i])[0])] = cd[i]
+        iterMat[int(np.where(yAx == y[i])[0])][int(np.where(xAx == x[i])[0])] = iters[i]
+        timeMat[int(np.where(yAx == y[i])[0])][int(np.where(xAx == x[i])[0])] = times[i]
 
-    plt.subplot(1, 2, 1)
-    plt.pcolor(xAx, yAx, clMat)
-    plt.colorbar()
-    plt.subplot(1, 2, 2)
-    plt.pcolor(xAx, yAx, cdMat)
-    plt.colorbar()
+    fig, ax = plt.subplots()
+    ax1  = plt.subplot(1, 2, 1)
+    im1 = ax1.imshow(np.flipud(clMat))
+    ax1.set_xticks(np.arange(len(xAx)))
+    ax1.set_yticks(np.arange(len(yAx)))
+    ax1.set_xticklabels(xAx)
+    ax1.set_yticklabels(yAx)
+    plt.setp(ax1.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+    plt.colorbar(im1)
+
+    ax1 = plt.subplot(1, 2, 2)
+    im1 = ax1.imshow(np.flipud(timeMat))
+    ax1.set_xticks(np.arange(len(xAx)))
+    ax1.set_yticks(np.arange(len(yAx)))
+    ax1.set_xticklabels(xAx)
+    ax1.set_yticklabels(yAx)
+    plt.setp(ax1.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+    plt.colorbar(im1)
     plt.show()
 
 
 if __name__ == '__main__':
     run_convergence_analysis()
-    #plot_output_data()
+    plot_output_data()
