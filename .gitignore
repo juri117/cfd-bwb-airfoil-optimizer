@@ -9,7 +9,7 @@ __pycache__/*
 .DS_Store
 trash
 data
-dataOut
+dataOut*
 **/*.pyc
 **/*.lof
 **/*.out
