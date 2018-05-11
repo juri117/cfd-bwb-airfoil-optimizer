@@ -38,9 +38,6 @@ if not os.path.isfile(GMSH_EXE_PATH):
     print('gmsh executable could not be found in: ' + GMSH_EXE_PATH)
     sys.exit(0)
 
-MACH_NUMBER = 0.78 #mach number cruise
-
-
 #create working dir if necessary
 if not os.path.isdir(WORKING_DIR):
     os.mkdir(WORKING_DIR)
@@ -55,14 +52,14 @@ if not os.path.isfile(GMSH_EXE_PATH):
 config = dict()
 config['PHYSICAL_PROBLEM'] = 'EULER'
 config['AOA'] = str(0.0)
-#config['FREESTREAM_PRESSURE'] = str(101325.0)
-#config['FREESTREAM_TEMPERATURE'] = str(273.15)
+config['FREESTREAM_PRESSURE'] = str(24999.8) #for altitude 10363 m
+config['FREESTREAM_TEMPERATURE'] = str(220.79) #for altitude 10363 m
 #config['GAS_CONSTANT'] = str(287.87)
 #config['REF_LENGTH'] = str(1.0)
 #config['REF_AREA'] = str(1.0)
 config['MARKER_EULER'] = '( airfoil )'
 config['MARKER_FAR'] = '( farfield )'
-config['EXT_ITER'] = str(500)
+config['EXT_ITER'] = str(1000)
 config['OUTPUT_FORMAT'] = 'PARAVIEW'
 
 
