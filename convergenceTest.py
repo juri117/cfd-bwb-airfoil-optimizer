@@ -56,10 +56,10 @@ def run_convergence_analysis():
     config['OUTPUT_FORMAT'] = 'PARAVIEW'
 
 
-    innerMeshSize = np.linspace(0.001, 0.1, 21)
-    outerMeshSize = np.linspace(0.1, 2., 21)
-    innerMeshSize = np.flip(innerMeshSize, 0)
-    outerMeshSize = np.flip(outerMeshSize, 0)
+    innerMeshSize = np.linspace(0.005, 0.01, 6)
+    outerMeshSize = np.linspace(0.5, 1., 6)
+    #innerMeshSize = np.flip(innerMeshSize, 0)
+    #outerMeshSize = np.flip(outerMeshSize, 0)
 
     cdList = np.zeros((len(innerMeshSize),len(outerMeshSize)))
     clList = np.zeros((len(innerMeshSize),len(outerMeshSize)))
@@ -67,6 +67,7 @@ def run_convergence_analysis():
     eList = np.zeros((len(innerMeshSize),len(outerMeshSize)))
 
     ouputF = open(WORKING_DIR + '/' + 'convergenceResult.txt', 'w')
+    ouputF.write('innerMeshSize,outerMeshSize,CL,CD,CM,E,Iterations,Time(min)\n')
 
     for iI in range(0, len(innerMeshSize)):
         for iO in range(0, len(outerMeshSize)):
@@ -84,7 +85,12 @@ def run_convergence_analysis():
             cfd.generate_mesh()
             cfd.su2_fix_mesh()
             cfd.su2_solve(config)
-            totalCL, totalCD, totalCM, totalE = cfd.su2_parse_results()
+            results = cfd.su2_parse_iteration_result()
+            #totalCL, totalCD, totalCM, totalE = cfd.su2_parse_results()
+            totalCL = results['CL']
+            totalCD = results['CD']
+            totalCM = results['CMz']
+            totalE = results['CL/CD']
             clList[iI][iO] = totalCL
             cdList[iI][iO] = totalCD
             cmList[iI][iO] = totalCM
@@ -94,7 +100,9 @@ def run_convergence_analysis():
                          +str(totalCL)+','
                          +str(totalCD)+','
                          +str(totalCM)+','
-                         +str(totalE)+'\n')
+                         +str(totalE)+','
+                         +str(results['Iteration'])+','
+                         +str(results['Time(min)'])+'\n')
             ouputF.flush()
 
             print('totalCL: ' + str(totalCL))
@@ -108,7 +116,7 @@ def run_convergence_analysis():
     print('done')
 
 def plot_output_data():
-    data = np.genfromtxt(WORKING_DIR + '/' + 'convergenceResult.txt', delimiter=',')
+    data = np.genfromtxt(WORKING_DIR + '/' + 'convergenceResult.txt', delimiter=',', skip_header=1)
     x = data[:,0]
     y = data[:,1]
     cl = data[:,2]

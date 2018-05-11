@@ -113,6 +113,22 @@ class SU2:
                 totalCM = float(self._parse_param_from_row(l))
         return totalCL, totalCD, totalCM, totalE
 
+    def parse_result_from_history(self, history_file_name, working_dir='outDir/'):
+        f = open(working_dir + '/' + history_file_name)
+        lines = f.read().splitlines()
+        outDict = dict()
+        paraNames = lines[0].split(',')
+        paraNames = [p.replace('"', '') for p in paraNames]
+        finalLine = lines[-1]
+        if len(finalLine) == 0:
+            finalLine = lines[-2]
+        finalLine = finalLine.strip().replace(' ', '')
+        values = finalLine.split(',')
+        if len(paraNames) != len(values):
+            print('ERROR: csv is not homegenious, file path: ' + working_dir + '/' + history_file_name)
+        for i in range(0, len(values)):
+            outDict[paraNames[i]] = values[i]
+        return outDict
 
     def _parse_param_from_row(self, rowStr):
         rowStr = rowStr.strip()

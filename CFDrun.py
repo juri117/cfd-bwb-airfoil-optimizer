@@ -60,6 +60,10 @@ class CFDrun:
         totalCL, totalCD, totalCM, totalE = self.su2.parse_force_breakdown('forces_breakdown.dat', working_dir=self.projectDir)
         return totalCL, totalCD, totalCM, totalE
 
+    def su2_parse_iteration_result(self):
+        print('parsing cfd iteration results')
+        return self.su2.parse_result_from_history('history.vtk', working_dir=self.projectDir)
+
     def clean_up(self):
         print('clean up...')
         if os.path.isfile(self.projectDir + '/airfoilMesh.su2'):
