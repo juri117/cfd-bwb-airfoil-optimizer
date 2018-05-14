@@ -98,6 +98,29 @@ class Airfoil:
         qy = oy + math.sin(angle) * (px - ox) + math.cos(angle) * (py - oy)
         return [qx, qy]
 
+    """ kooridinate direction
+            <----              start
+     .--------------__
+    /                 ---__
+    |                      ---___
+     '----------------------------
+            ------->           end
+    """
+    def write_to_dat(self, file_name, working_dir='dataOut/'):
+        fileName = file_name.replace('.dat', '')
+        outF = open(working_dir + '/' + fileName + '.dat', 'w')
+        outF.write(file_name + '\n')
+        top = sorted(self.airfoilTop, key=lambda elem: elem[0])[::-1]
+        but = sorted(self.airfoilButtom, key=lambda elem: elem[0])
+        for row in top:
+            outF.write(str(row[0]) + ' ' + str(row[1]) + '\n')
+        for row in but:
+            outF.write(str(row[0]) + ' ' + str(row[1]) + '\n')
+        outF.close()
+
+
+
+
     def plotAirfoil(self, showPlot=True):
         xList = []
         yTopList = []

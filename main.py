@@ -151,7 +151,11 @@ class AirfoilCFD(ExplicitComponent):
                                             save_plot_path=WORKING_DIR+'/'+projectName+'/airfoil_cabin.png')
         if not self.bzFoil.valid:
             raise AnalysisError('CabinFitting: invalid BPAirfoil')
-        cfd.set_airfoul_coords(airFoilCoords)
+
+        top, buttom = self.bzFoil.get_cooridnates_top_buttom(500)
+        #self.air.set_coordinates(top, buttom)
+        cfd.set_airfoul_coords(top, buttom)
+
         cfd.generate_mesh()
         cfd.su2_fix_mesh()
         cfd.su2_solve(config)

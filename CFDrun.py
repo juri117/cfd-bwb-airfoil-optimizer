@@ -9,11 +9,14 @@ from Gmsh import Gmsh
 from Airfoil import Airfoil
 from SU2 import SU2
 from BPAirfoil import BPAirfoil
+from Construct2d import Construct2d
+from meshTools.p3d2su2_OGrid import p2_to_su2_ogrid
 
 GMSH_EXE_PATH = 'gmsh/gmsh.exe'
 #SU2_BIN_PATH = 'D:/prog/portable/Luftfahrt/su2-windows-latest/ExecParallel/bin/'
 SU2_BIN_PATH = 'su2-windows-latest/ExecParallel/bin/'
 OS_MPI_COMMAND = 'mpiexec'
+CONSTRUCT2D_EXE_PATH = 'meshTools/construct2d.exe'
 SU2_USED_CORES = 4
 WORKING_DIR = 'dataOut/'
 INPUT_DIR = 'dataIn/'
@@ -30,22 +33,34 @@ class CFDrun:
         self.su2 = SU2(SU2_BIN_PATH, used_cores=used_cores, mpi_exec=OS_MPI_COMMAND)
         self.foilCoord = None
         self.gmsh = Gmsh(GMSH_EXE_PATH)
+        self.c2d = Construct2d(CONSTRUCT2D_EXE_PATH)
 
     def load_airfoil_from_file(self, file_name):
-        foil = Airfoil(file_name)
-        self.foilCoord = foil.get_sorted_point_list()
+        self.airfoil = Airfoil(file_name)
+        self.foilCoord = self.airfoil.get_sorted_point_list()
 
     #def load_airfoil_bp(self):
     #    bp = BPAirfoil()
     #    self.foilCoord = bp.generate_airfoil(500, show_plot=False)
 
-    def set_airfoul_coords(self, coords):
-        self.foilCoord = coords
+    def set_airfoul_coords(self, buttom, top):
+        #self.foilCoord = coords
+        self.airfoil = Airfoil(None)
+        self.airfoil.set_coordinates(top, buttom)
+        self.foilCoord = self.airfoil.get_sorted_point_list()
 
-    def generate_mesh(self):
-        print('start meshing...')
+    def gmsh_generate_mesh(self):
+        print('start meshing with gmsh...')
         self.gmsh.generate_geo_file(self.foilCoord, 'airfoilMesh.geo', 1000, working_dir=self.projectDir)
         self.gmsh.run_2d_geo_file('airfoilMesh.geo', 'airfoilMesh.su2', working_dir=self.projectDir)
+
+    def construct2d_generate_mesh(self):
+        print('start meshing with construct2d...')
+        self.airfoil.write_to_dat('airfoil.dat', working_dir=self.projectDir)
+
+        self.c2d.run_mesh_generatoin('airfoil.dat', working_dir=self.projectDir)
+        p2_to_su2_ogrid(self.projectDir + '/' + 'airfoil.p3d')
+        os.rename(self.projectDir + '/' + 'airfoil.su2', self.projectDir + '/' + 'airfoilMesh.su2')
 
     def su2_fix_mesh(self):
         print('start mesh-fixing...')

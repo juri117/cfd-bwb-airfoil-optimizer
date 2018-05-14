@@ -26,3 +26,4 @@ openMDAO
 **/bin/*
 gmsh/*
 su2-windows-latest/*
+**/*.dat
