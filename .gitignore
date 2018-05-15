@@ -22,6 +22,7 @@ Aero/OpenVSP
 openMDAO
 **/*.ini
 **/*.exe
+**/*.dll
 **/*.txt
 **/bin/*
 gmsh/*
