@@ -15,7 +15,6 @@ import os
 import numpy as np
 import time
 import threading
-import Queue
 import select
 import sys
 from threading  import Thread
@@ -40,6 +39,8 @@ class Construct2d:
         while (True):
             try:
                 line = que.get_nowait()  # or q.get(timeout=.1)
+                if sys.version_info[0] >= 3:
+                    line = line.decode('UTF-8')
             except Empty:
                 #print('no output yet')
                 time.sleep(0.01)
@@ -54,7 +55,10 @@ class Construct2d:
         out.close()
 
     def write_to_console_and_enter(self, p, str):
-        p.stdin.write(str + '\n')
+        outStr = str + '\n'
+        if sys.version_info[0] >= 3:
+            outStr = outStr.decode('UTF-8')
+        p.stdin.write(outStr)
         p.stdin.flush()
 
     def run_mesh_generatoin(self, input_dat_file_name, working_dir='dataOut/'):
