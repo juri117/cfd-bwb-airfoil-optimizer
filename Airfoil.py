@@ -112,10 +112,20 @@ class Airfoil:
         outF.write(file_name + '\n')
         top = sorted(self.airfoilTop, key=lambda elem: elem[0])[::-1]
         but = sorted(self.airfoilButtom, key=lambda elem: elem[0])
+        lastX = -999.
+        lastY = -999.
         for row in top:
-            outF.write(str(row[0]) + ' ' + str(row[1]) + '\n')
+            #outF.write(str(row[0]) + '  ' + str(row[1]) + '\n')
+            if not (lastX == row[0] and lastY == row[1]):
+                outF.write("{:.7f}  {:.7f}\n".format(row[0], row[1]))
+            lastX = row[0]
+            lastY = row[1]
         for row in but:
-            outF.write(str(row[0]) + ' ' + str(row[1]) + '\n')
+            #outF.write(str(row[0]) + '  ' + str(row[1]) + '\n')
+            if not (lastX == row[0] and lastY == row[1]):
+                outF.write("{:.7f}  {:.7f}\n".format(row[0], row[1]))
+            lastX = row[0]
+            lastY = row[1]
         outF.close()
 
 

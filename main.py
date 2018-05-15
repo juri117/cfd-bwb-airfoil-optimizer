@@ -335,17 +335,19 @@ if __name__ == '__main__':
     lowerPro = 0.9
     upperPro = 1.1
 
-    prob.model.add_design_var('r_le', lower=bp.r_le*upperPro, upper=bp.r_le*lowerPro)
+    prob.model.add_design_var('r_le', lower=-1*bp.y_t, upper=0)
     prob.model.add_design_var('beta_te', lower=bp.beta_te*lowerPro, upper=bp.beta_te*upperPro)
-    prob.model.add_design_var('dz_te', lower=bp.dz_te*lowerPro, upper=bp.dz_te*upperPro)
-    prob.model.add_design_var('x_t', lower=bp.x_t*lowerPro, upper=bp.x_t*upperPro)
-    #prob.model.add_design_var('y_t')
+    #ToDo: dz_te constant to 0, no thickness at trailing edge
+    prob.model.add_design_var('dz_te', lower=0., upper=0.)
+    prob.model.add_design_var('x_t', lower=0.25, upper=0.5)
+    #prob.model.add_design_var('y_t', lower=0.075, upper=0.09)
 
     prob.model.add_design_var('gamma_le', lower=bp.gamma_le*lowerPro, upper=bp.gamma_le*upperPro)
     prob.model.add_design_var('x_c', lower=bp.x_c*lowerPro, upper=bp.x_c*upperPro)
     prob.model.add_design_var('y_c', lower=bp.y_c*lowerPro, upper=bp.y_c*upperPro)
     prob.model.add_design_var('alpha_te', lower=bp.alpha_te*upperPro, upper=bp.alpha_te*lowerPro)
-    prob.model.add_design_var('z_te', lower=bp.z_te*lowerPro, upper=bp.z_te*upperPro)
+    #ToDo. t_te constant to 0. no camber at trailing edge
+    prob.model.add_design_var('z_te', lower=0., upper=0.)
 
     prob.model.add_design_var('b_8', lower=bp.b_8*lowerPro, upper=bp.b_8*upperPro)
     prob.model.add_design_var('b_15', lower=bp.b_15*lowerPro, upper=bp.b_15*upperPro)

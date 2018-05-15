@@ -10,6 +10,7 @@ from Airfoil import Airfoil
 from SU2 import SU2
 from BPAirfoil import BPAirfoil
 from Construct2d import Construct2d
+from Construct2dParser import Construct2dParser
 from meshTools.p3d2su2_OGrid import p2_to_su2_ogrid
 
 GMSH_EXE_PATH = 'gmsh/gmsh.exe'
@@ -59,8 +60,13 @@ class CFDrun:
         self.airfoil.write_to_dat('airfoil.dat', working_dir=self.projectDir)
 
         self.c2d.run_mesh_generatoin('airfoil.dat', working_dir=self.projectDir)
-        p2_to_su2_ogrid(self.projectDir + '/' + 'airfoil.p3d')
-        os.rename(self.projectDir + '/' + 'airfoil.su2', self.projectDir + '/' + 'airfoilMesh.su2')
+        #p2_to_su2_ogrid(self.projectDir + '/' + 'airfoil.p3d')
+        c2dParser = Construct2dParser(self.projectDir + '/' + 'airfoil.p3d')
+        c2dParser.p3d_to_su2_cgrid(self.projectDir + '/' + 'airfoilMesh.su2')
+
+        #if os.path.isfile(self.projectDir + '/' + 'airfoilMesh.su2'):
+        #    os.remove(self.projectDir + '/' + 'airfoilMesh.su2')
+        #os.rename(self.projectDir + '/' + 'airfoil.su2', self.projectDir + '/' + 'airfoilMesh.su2')
 
     def su2_fix_mesh(self):
         print('start mesh-fixing...')

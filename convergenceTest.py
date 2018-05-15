@@ -45,7 +45,7 @@ def run_convergence_analysis_gmsh():
     config = dict()
     config['PHYSICAL_PROBLEM'] = 'EULER'
     config['MACH_NUMBER'] = str(0.65)
-    config['AOA'] = str(.0)
+    config['AOA'] = str(1.25)
     config['FREESTREAM_PRESSURE'] = str(24999.8) #for altitude 10363 m
     config['FREESTREAM_TEMPERATURE'] = str(220.79) #for altitude 10363 m
     #config['GAS_CONSTANT'] = str(287.87)
@@ -55,7 +55,8 @@ def run_convergence_analysis_gmsh():
     config['MARKER_FAR'] = '( farfield )'
     config['EXT_ITER'] = str(1000)
     config['OUTPUT_FORMAT'] = 'PARAVIEW'
-
+    config['MG_DAMP_RESTRICTION'] = str(0.75)
+    config['MG_DAMP_PROLONGATION'] = str(0.75)
 
     #for gmsh
     innerMeshSize = np.linspace(0.001, 0.01, 21)
@@ -122,20 +123,23 @@ def run_convergence_analysis_construct2d():
     config = dict()
     config['PHYSICAL_PROBLEM'] = 'EULER'
     config['MACH_NUMBER'] = str(0.65)
-    config['AOA'] = str(.0)
-    config['FREESTREAM_PRESSURE'] = str(24999.8) #for altitude 10363 m
-    config['FREESTREAM_TEMPERATURE'] = str(220.79) #for altitude 10363 m
-    #config['GAS_CONSTANT'] = str(287.87)
-    #config['REF_LENGTH'] = str(1.0)
-    #config['REF_AREA'] = str(1.0)
+    config['AOA'] = str(0.)
+    config['FREESTREAM_PRESSURE'] = str(24999.8)  # for altitude 10363 m
+    config['FREESTREAM_TEMPERATURE'] = str(220.79)  # for altitude 10363 m
+    # config['GAS_CONSTANT'] = str(287.87)
+    # config['REF_LENGTH'] = str(1.0)
+    # config['REF_AREA'] = str(1.0)
     config['MARKER_EULER'] = '( airfoil )'
     config['MARKER_FAR'] = '( farfield )'
     config['EXT_ITER'] = str(1000)
     config['OUTPUT_FORMAT'] = 'PARAVIEW'
+    config['MG_DAMP_RESTRICTION'] = str(0.75)
+    config['MG_DAMP_PROLONGATION'] = str(0.75)
 
 
     #for construct 2d
     normalMeshDivider = range(30, 150, 10)
+    normalMeshDivider = [100]
     secondParam = [0]
 
 
