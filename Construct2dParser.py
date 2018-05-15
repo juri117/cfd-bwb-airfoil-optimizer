@@ -103,8 +103,8 @@ class Construct2dParser:
                 e.add_point(p3ID)
                 e.add_point(p4ID)
                 elements.append(e)
-                if m < 4:
-                    e.plot_elem(ax, self.pointList)
+                #if m < 4:
+                #    e.plot_elem(ax, self.pointList)
                 elementCount += 1
 
         su2_File.write("NELEM=%s\n" % len(elements))

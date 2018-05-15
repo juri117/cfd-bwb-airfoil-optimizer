@@ -138,8 +138,7 @@ def run_convergence_analysis_construct2d():
 
 
     #for construct 2d
-    normalMeshDivider = range(30, 150, 10)
-    normalMeshDivider = [100]
+    normalMeshDivider = range(50, 500, 10)
     secondParam = [0]
 
 
