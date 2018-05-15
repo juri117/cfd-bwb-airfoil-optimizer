@@ -33,7 +33,7 @@ class Construct2d:
         self.pointNrAirfoilSurface = 250
         self.farfieldRadius = 15.0
         self.useCGrid = True
-        self.pointsInNormalDir = 101
+        self.pointsInNormalDir = 100
 
     def wait_for_keyword(self, que, word):
         while (True):
@@ -85,7 +85,7 @@ class Construct2d:
         self.write_to_console_and_enter(p, input_dat_file_name)
         self.wait_for_keyword(q, 'QUIT')
 
-        """
+
         #enter airfoil surface options
         self.write_to_console_and_enter(p, 'SOPT')
         self.wait_for_keyword(q, 'QUIT')
@@ -122,7 +122,7 @@ class Construct2d:
         # go back
         self.write_to_console_and_enter(p, 'QUIT')
         self.wait_for_keyword(q, 'QUIT')
-        """
+
 
         #start meshing
         self.write_to_console_and_enter(p, 'GRID')
