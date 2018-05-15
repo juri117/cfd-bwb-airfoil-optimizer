@@ -57,7 +57,7 @@ class Construct2d:
     def write_to_console_and_enter(self, p, str):
         outStr = str + '\n'
         if sys.version_info[0] >= 3:
-            outStr = outStr.decode('UTF-8')
+            outStr = outStr.encode('UTF-8')
         p.stdin.write(outStr)
         p.stdin.flush()
 
