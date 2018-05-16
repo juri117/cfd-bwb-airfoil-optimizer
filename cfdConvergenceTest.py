@@ -138,8 +138,8 @@ def run_convergence_analysis_construct2d():
 
 
     #for construct 2d
-    normalMeshDivider = range(60, 500, 10)
-    secondParam = [0]
+    normalMeshDivider = [100] #range(60, 500, 10)
+    secondParam = [250]
 
 
     cdList = np.zeros((len(normalMeshDivider),len(secondParam)))
@@ -196,9 +196,6 @@ def run_convergence_analysis_construct2d():
     plt.colorbar()
     plt.show()
     print('done')
-
-
-
 
 def plot_output_data():
     data = np.genfromtxt(WORKING_DIR + '/' + 'convergenceResult.txt', delimiter=',', skip_header=1)

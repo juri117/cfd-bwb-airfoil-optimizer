@@ -71,7 +71,7 @@ class Construct2dParser:
         return oldId
 
 
-    def p3d_to_su2_cgrid(self, output_file_name):
+    def p3d_to_su2_cgrid(self, output_file_name, scale=1.):
 
         #fig = plt.figure()
         #ax = fig.add_subplot(111)
@@ -113,8 +113,8 @@ class Construct2dParser:
 
         su2_File.write("NPOIN=%s\n" % (len(self.pointList)))
         for p in self.pointList:
-            point1 = p[0]
-            point2 = p[1]
+            point1 = p[0] * scale
+            point2 = p[1] * scale
             su2_File.write("%s \t %s \t %s\n" % (point1, point2, int(p[2])))
 
 
