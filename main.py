@@ -168,7 +168,7 @@ class AirfoilCFD(ExplicitComponent):
         results = cfd.su2_parse_iteration_result()
         cfd.clean_up()
 
-        if results['CD'] <= 0. or results['CD'] > 100.:
+        if float(results['CD']) <= 0. or float(results['CD']) > 100.:
             raise AnalysisError('AirfoilCFD: c_d is out of range (cfd failed)')
 
         outputs['c_d'] = results['CD']
