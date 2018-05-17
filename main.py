@@ -155,7 +155,7 @@ class AirfoilCFD(ExplicitComponent):
                                             show_plot=False,
                                             save_plot_path=WORKING_DIR+'/'+projectName+'/airfoil_cabin.png')
         if not self.bzFoil.valid:
-            raise AnalysisError('CabinFitting: invalid BPAirfoil')
+            raise AnalysisError('AirfoilCFD: invalid BPAirfoil')
 
         top, buttom = self.bzFoil.get_cooridnates_top_buttom(500)
         #self.air.set_coordinates(top, buttom)
@@ -167,6 +167,9 @@ class AirfoilCFD(ExplicitComponent):
         #totalCL, totalCD, totalCM, totalE = cfd.su2_parse_results()
         results = cfd.su2_parse_iteration_result()
         cfd.clean_up()
+
+        if results['CD'] <= 0. or results['CD'] > 100.:
+            raise AnalysisError('AirfoilCFD: c_d is out of range (cfd failed)')
 
         outputs['c_d'] = results['CD']
         outputs['c_l'] = results['CL']
@@ -381,11 +384,11 @@ if __name__ == '__main__':
     lowerPro = 0.9
     upperPro = 1.1
 
-    prob.model.add_design_var('r_le')#, lower=-1*bp.y_t, upper=0)
+    prob.model.add_design_var('r_le', upper=0.)#, lower=-1*bp.y_t, upper=0)
     prob.model.add_design_var('beta_te')#, lower=bp.beta_te*lowerPro, upper=bp.beta_te*upperPro)
     #ToDo: dz_te constant to 0, no thickness at trailing edge
     #prob.model.add_design_var('dz_te', lower=0., upper=0.)
-    prob.model.add_design_var('x_t', lower=0.25, upper=0.5)
+    prob.model.add_design_var('x_t', lower=0.)#, lower=0.25, upper=0.5)
     #prob.model.add_design_var('y_t', lower=0.075, upper=0.09)
 
     prob.model.add_design_var('gamma_le')#, lower=bp.gamma_le*lowerPro, upper=bp.gamma_le*upperPro)
