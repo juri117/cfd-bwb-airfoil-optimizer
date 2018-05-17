@@ -119,26 +119,28 @@ class BPAirfoil:
         yTop = list(map(add, yC, yT))
         yBut = list(map(add, yC, (-1. * yT)))
 
-        pltCam, = plt.plot(x, yC, '--g', label='camber')
-        pltThi, = plt.plot(x, yT, '--y', label='thickness')
-        pltTop, = plt.plot(x, yTop, '-r', label='airfoil top')
-        pltBut, = plt.plot(x, yBut, '-b', label='airfoil buttom')
-        plt.legend(handles=[pltCam, pltThi, pltTop, pltBut])
-        plt.title('Airfoil')
-        plt.axis('equal')
+        if show_plot or save_plot_path != '':
+            pltCam, = plt.plot(x, yC, '--g', label='camber')
+            pltThi, = plt.plot(x, yT, '--y', label='thickness')
+            pltTop, = plt.plot(x, yTop, '-r', label='airfoil top')
+            pltBut, = plt.plot(x, yBut, '-b', label='airfoil buttom')
+            plt.legend(handles=[pltCam, pltThi, pltTop, pltBut])
+            plt.title('Airfoil')
+            plt.axis('equal')
 
         if show_plot:
             plt.show()
         if not save_plot_path == '':
             plt.savefig(save_plot_path)
-        plt.clf()
+        if show_plot or save_plot_path != '':
+            plt.clf()
         if not param_dump_file == '':
             self.save_parameters_to_file(param_dump_file)
         self.topCoords = np.array([x, yTop]).transpose()
         self.buttomCoords = np.array([x[::-1], yBut[::-1]]).transpose()
         return np.vstack((np.array([x, yTop]).transpose(), np.array([x[::-1], yBut[::-1]]).transpose()))[:-1]
 
-    def plot_airfoil_with_cabin(self, offsetFront, length, height, angle, show_plot=True, save_plot_path=''):
+    def plot_airfoil_with_cabin(self, offsetFront, length, height, angle, show_plot=True, save_plot_path='', clear_plot=True):
         air = Airfoil(None)
         air.set_coordinates(self.topCoords, self.buttomCoords)
         air.rotate(angle)
@@ -166,7 +168,8 @@ class BPAirfoil:
             plt.savefig(save_plot_path)
         if show_plot:
             plt.show()
-        plt.clf()
+        if clear_plot:
+            plt.clf()
 
     def rotatePoint(self, origin, point, angle):
         angle = angle * math.pi / 180.
@@ -280,8 +283,27 @@ class BPAirfoil:
 
 
 if __name__ == '__main__':
-    bp = BPAirfoil()
-    bp.generate_airfoil(500, show_plot=True)
+    #bp = BPAirfoil()
+    #bp.generate_airfoil(500, show_plot=True)
+
+    ###compare arifoils
+
+    bp1 = BPAirfoil()
+    bp1.read_parameters_from_file('dataIn/airfoil.txt')
+    bp1.generate_airfoil(500, show_plot=False)
+    plt1, = plt.plot(bp1.topCoords[:, 0], bp1.topCoords[:, 1], '-b', label='airfoil 1')
+    plt.plot(bp1.buttomCoords[:, 0], bp1.buttomCoords[:, 1], '-b', label='airfoil 1')
+
+    bp2 = BPAirfoil()
+    bp2.read_parameters_from_file('dataOut/airfoil.txt')
+    bp2.generate_airfoil(500, show_plot=False)
+    plt2, = plt.plot(bp2.topCoords[:, 0], bp2.topCoords[:, 1], '-g', label='airfoil 2')
+    plt.plot(bp2.buttomCoords[:, 0], bp2.buttomCoords[:, 1], '-g', label='airfoil 2')
+
+    plt.legend(handles=[plt1, plt2])
+    plt.title('Airfoil with cabin')
+    plt.axis('equal')
+    plt.show()
 
 '''
 # output
