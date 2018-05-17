@@ -11,23 +11,17 @@ from Airfoil import Airfoil
 from SU2 import SU2
 from BPAirfoil import BPAirfoil
 from CFDrun import CFDrun
+from constants import *
 
 from openmdao.core.explicitcomponent import ExplicitComponent
-from openmdao.api import Problem, ScipyOptimizeDriver, IndepVarComp, ExplicitComponent
+from openmdao.api import Problem, ScipyOptimizeDriver, IndepVarComp, ExplicitComponent, SqliteRecorder
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 from openmdao.core.problem import Problem
 from openmdao.core.group import Group
 from openmdao.core.indepvarcomp import IndepVarComp
 from openmdao.core.analysis_error import AnalysisError
-
-GMSH_EXE_PATH = 'gmsh/gmsh.exe'
-#SU2_BIN_PATH = 'D:/prog/portable/Luftfahrt/su2-windows-latest/ExecParallel/bin/'
-SU2_BIN_PATH = 'su2-windows-latest/ExecParallel/bin/'
-OS_MPI_COMMAND = 'mpiexec'
-SU2_USED_CORES = 4
-WORKING_DIR = 'dataOut/'
-INPUT_DIR = 'dataIn/'
 
 # create working dir if necessary
 if not os.path.isdir(WORKING_DIR):
@@ -72,7 +66,7 @@ config['EXT_ITER'] = str(500)
 config['OUTPUT_FORMAT'] = 'PARAVIEW'
 
 cabinLength = 0.55
-cabinHeigth = 0.14
+cabinHeigth = 0.13
 
 class AirfoilCFD(ExplicitComponent):
 
@@ -88,7 +82,7 @@ class AirfoilCFD(ExplicitComponent):
 
         self.add_input('r_le', val=-0.05, desc='nose radius')
         self.add_input('beta_te', val=0.1, desc='thickness angle trailing edge')
-        self.add_input('dz_te', val=0., desc='thickness trailing edge')
+        #self.add_input('dz_te', val=0., desc='thickness trailing edge')
         self.add_input('x_t', val=0.3, desc='dickenruecklage')
         self.add_input('y_t', val=0.1, desc='max thickness')
 
@@ -120,7 +114,7 @@ class AirfoilCFD(ExplicitComponent):
     def compute(self, inputs, outputs):
         self.bzFoil.r_le = inputs['r_le']
         self.bzFoil.beta_te = inputs['beta_te']
-        self.bzFoil.dz_te = inputs['dz_te']
+        #self.bzFoil.dz_te = inputs['dz_te']
         self.bzFoil.x_t = inputs['x_t']
         self.bzFoil.y_t = inputs['y_t']
 
@@ -156,7 +150,7 @@ class AirfoilCFD(ExplicitComponent):
         #self.air.set_coordinates(top, buttom)
         cfd.set_airfoul_coords(top, buttom)
 
-        cfd.generate_mesh()
+        cfd.construct2d_generate_mesh()
         cfd.su2_fix_mesh()
         cfd.su2_solve(config)
         totalCL, totalCD, totalCM, totalE = cfd.su2_parse_results()
@@ -168,6 +162,27 @@ class AirfoilCFD(ExplicitComponent):
         print('c_l= ' + str(outputs['c_l']))
         print('c_d= ' + str(outputs['c_d']))
         print('c_m= ' + str(outputs['c_m']))
+        write_to_log(str(self.executionCounter) + ','
+                     + datetime.now().strftime('%H:%M:%S') + ','
+                     + str(outputs['c_l']) + ','
+                     + str(outputs['c_d']) + ','
+                     + str(outputs['c_m']) + ','
+                     + str(inputs['offsetFront']) + ','
+                     + str(inputs['angle']) + ','
+                     + str(inputs['r_le']) + ','
+                     + str(inputs['beta_te']) + ','
+                     + str(inputs['x_t']) + ','
+                     + str(inputs['y_t']) + ','
+                     + str(inputs['gamma_le']) + ','
+                     + str(inputs['x_c']) + ','
+                     + str(inputs['y_c']) + ','
+                     + str(inputs['alpha_te']) + ','
+                     + str(inputs['z_te']) + ','
+                     + str(inputs['b_8']) + ','
+                     + str(inputs['b_15']) + ','
+                     + str(inputs['b_0']) + ','
+                     + str(inputs['b_17']) + ','
+                     + str(inputs['b_2']))
         self.executionCounter += 1
 
 class CabinFitting(ExplicitComponent):
@@ -183,7 +198,7 @@ class CabinFitting(ExplicitComponent):
         ### INPUTS
         self.add_input('r_le', val=-0.05, desc='nose radius')
         self.add_input('beta_te', val=0.1, desc='thickness angle trailing edge')
-        self.add_input('dz_te', val=0., desc='thickness trailing edge')
+        #self.add_input('dz_te', val=0., desc='thickness trailing edge')
         self.add_input('x_t', val=0.3, desc='dickenruecklage')
         #self.add_input('y_t', val=0.1, desc='max thickness')
 
@@ -214,7 +229,7 @@ class CabinFitting(ExplicitComponent):
     def compute(self, inputs, outputs):
         self.bzFoil.r_le = inputs['r_le']
         self.bzFoil.beta_te = inputs['beta_te']
-        self.bzFoil.dz_te = inputs['dz_te']
+        #self.bzFoil.dz_te = inputs['dz_te']
         self.bzFoil.x_t = inputs['x_t']
         #self.bzFoil.y_t = 0.1 #inputs['y_t']
 
@@ -262,7 +277,10 @@ class CabinFitting(ExplicitComponent):
         self.executionCounter += 1
 
 
-
+def write_to_log(outStr):
+    outputF = open(WORKING_DIR + '/' + 'iterationRes.csv', 'a') #'a' so we append the file
+    outputF.write(outStr + '\n')
+    outputF.close()
 
 
 if __name__ == '__main__':
@@ -281,9 +299,9 @@ if __name__ == '__main__':
     bp.read_parameters_from_file(INPUT_DIR+'/'+'airfoil.txt')
     indeps.add_output('r_le', bp.r_le)
     indeps.add_output('beta_te', bp.beta_te)
-    indeps.add_output('dz_te', bp.dz_te)
+    #indeps.add_output('dz_te', bp.dz_te) # we want a sharp trailing edge
     indeps.add_output('x_t', bp.x_t)
-    #indeps.add_output('y_t', bp.y_t)
+    #indeps.add_output('y_t', bp.y_t) # this is adapted by cabinFitter
 
     indeps.add_output('gamma_le', bp.gamma_le)
     indeps.add_output('x_c', bp.x_c)
@@ -306,7 +324,7 @@ if __name__ == '__main__':
 
     prob.model.connect('r_le', ['airfoil_cfd.r_le', 'cabin_fitter.r_le'])
     prob.model.connect('beta_te', ['airfoil_cfd.beta_te', 'cabin_fitter.beta_te'])
-    prob.model.connect('dz_te', ['airfoil_cfd.dz_te', 'cabin_fitter.dz_te'])
+    #prob.model.connect('dz_te', ['airfoil_cfd.dz_te', 'cabin_fitter.dz_te'])
     prob.model.connect('x_t', ['airfoil_cfd.x_t', 'cabin_fitter.x_t'])
 
     prob.model.connect('cabin_fitter.y_t', 'airfoil_cfd.y_t')
@@ -329,16 +347,24 @@ if __name__ == '__main__':
     prob.driver.options['tol'] = 1e-9
     prob.driver.options['maxiter'] = 100000
 
+    # setup recorder
+    recorder = SqliteRecorder(WORKING_DIR + '/openMdaoLog.sql')
+    prob.driver.add_recorder(recorder)
+    prob.driver.recording_options['record_desvars'] = True
+    prob.driver.recording_options['record_responses'] = True
+    prob.driver.recording_options['record_objectives'] = True
+    prob.driver.recording_options['record_constraints'] = True
+
     #limits and constraints
     #prob.model.add_design_var('length', lower=0.4, upper=0.5)
 
     lowerPro = 0.9
     upperPro = 1.1
 
-    prob.model.add_design_var('r_le', lower=-1*bp.y_t, upper=0)
-    prob.model.add_design_var('beta_te', lower=bp.beta_te*lowerPro, upper=bp.beta_te*upperPro)
+    prob.model.add_design_var('r_le')#, lower=-1*bp.y_t, upper=0)
+    prob.model.add_design_var('beta_te')#, lower=bp.beta_te*lowerPro, upper=bp.beta_te*upperPro)
     #ToDo: dz_te constant to 0, no thickness at trailing edge
-    prob.model.add_design_var('dz_te', lower=0., upper=0.)
+    #prob.model.add_design_var('dz_te', lower=0., upper=0.)
     prob.model.add_design_var('x_t', lower=0.25, upper=0.5)
     #prob.model.add_design_var('y_t', lower=0.075, upper=0.09)
 
@@ -346,7 +372,6 @@ if __name__ == '__main__':
     prob.model.add_design_var('x_c', lower=bp.x_c*lowerPro, upper=bp.x_c*upperPro)
     prob.model.add_design_var('y_c', lower=bp.y_c*lowerPro, upper=bp.y_c*upperPro)
     prob.model.add_design_var('alpha_te', lower=bp.alpha_te*upperPro, upper=bp.alpha_te*lowerPro)
-    #ToDo. t_te constant to 0. no camber at trailing edge
     prob.model.add_design_var('z_te', lower=0., upper=0.)
 
     prob.model.add_design_var('b_8', lower=bp.b_8*lowerPro, upper=bp.b_8*upperPro)
@@ -365,16 +390,20 @@ if __name__ == '__main__':
     prob.model.add_constraint('airfoil_cfd.c_l', lower=0.23, upper=.3)
     prob.model.add_constraint('airfoil_cfd.c_m', lower=-0.05, upper=99.)
 
+    write_to_log('start iteration @' + datetime.now().strftime('%Y-%m-%d_%H_%M_%S'))
+    write_to_log('iterations,time,c_l,c_d,c_m,offsetFront,angle,r_le,beta_te,x_t,y_t,gamma_le,x_c,y_c,alpha_te,z_te,b_8,b_15,b_0,b_17,b_2]))')
+
+
+
+
+
     prob.setup()
     prob.set_solver_print(level=0)
     prob.model.approx_totals()
     prob.run_driver()
 
-
     print('done')
     print('cabin frontOddset: ' + str(prob['offsetFront']))
-    #print('cabin length: ' + str(prob['length']))
-    #print('cabin height: ' + str(prob['cabin_fitter.height']))
     print('cabin angle: ' + str(-1. * prob['angle']) + ' deg')
 
     print('c_l= ' + str(prob['airfoil_cfd.c_l']))
@@ -385,101 +414,3 @@ if __name__ == '__main__':
     print('execution counts airfoil cfd: ' + str(prob.model.airfoil_cfd.executionCounter))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"""
-##################################
-### naca Test ca, cd over mach ###
-
-su2 = SU2(SU2_BIN_PATH, used_cores=SU2_USED_CORES, mpi_exec=OS_MPI_COMMAND)
-
-machNr = range(60, 91, 1)
-
-for mach in machNr:
-
-    projectName = 'nacaMach' + '%03d' % mach
-    projectDir = WORKING_DIR + '/' + projectName
-    #create project dir if necessary
-    if not os.path.isdir(projectDir):
-        os.mkdir(projectDir)
-
-    foil = Airfoil(INPUT_DIR + '/naca641-212.csv')
-
-    gmsh = Gmsh(GMSH_EXE_PATH)
-
-    foilCoord = foil.get_sorted_point_list()
-
-    #bp = BPAirfoil()
-    #foilCoord = bp.generate_airfoil(100, show_plot=False)
-
-    gmsh.generate_geo_file(foilCoord, 'airfoilMesh.geo', 1000, working_dir=projectDir)
-
-    gmsh.run_2d_geo_file('airfoilMesh.geo', 'airfoilMesh.su2', working_dir=projectDir)
-
-    su2.fix_mesh('airfoilMesh.su2', 'airfoilMeshFixed.su2', working_dir=projectDir)
-
-    config = dict()
-    config['PHYSICAL_PROBLEM'] = 'EULER'
-    config['MACH_NUMBER'] = str(mach/100.)
-    config['AOA'] = str(0.0)
-    #config['FREESTREAM_PRESSURE'] = str(101325.0)
-    #config['FREESTREAM_TEMPERATURE'] = str(273.15)
-    #config['GAS_CONSTANT'] = str(287.87)
-    #config['REF_LENGTH'] = str(1.0)
-    #config['REF_AREA'] = str(1.0)
-    config['MARKER_EULER'] = '( airfoil )'
-    config['MARKER_FAR'] = '( farfield )'
-    config['EXT_ITER'] = str(500)
-    config['OUTPUT_FORMAT'] = 'PARAVIEW'
-    su2.run_cfd('airfoilMeshFixed.su2', config, working_dir=projectDir)
-
-    totalCL, totalCD, totalCM, totalE = su2.parse_force_breakdown('forces_breakdown.dat', working_dir=projectDir)
-
-    print('totalCL: ' + str(totalCL))
-    print('totalCD: ' + str(totalCD))
-
-tCL = []
-tCD = []
-plt.close()
-plt.clf()
-for mach in machNr:
-    projectDir = WORKING_DIR + '/' 'nacaMach' + '%03d' % mach
-    totalCL, totalCD, totalCM, totalE = su2.parse_force_breakdown('forces_breakdown.dat', working_dir=projectDir)
-    tCL.append(totalCL)
-    tCD.append(totalCD)
-
-plt.plot(machNr, tCD, '-r')
-plt.plot(machNr, tCL, '-b')
-plt.show()
-"""

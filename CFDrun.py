@@ -48,14 +48,17 @@ class CFDrun:
         self.gmsh.generate_geo_file(self.foilCoord, 'airfoilMesh.geo', 1000, working_dir=self.projectDir)
         self.gmsh.run_2d_geo_file('airfoilMesh.geo', 'airfoilMesh.su2', working_dir=self.projectDir)
 
-    def construct2d_generate_mesh(self):
+    def construct2d_generate_mesh(self, scale=1., savePlot=False):
         print('start meshing with construct2d...')
         self.airfoil.write_to_dat('airfoil.dat', working_dir=self.projectDir)
 
         self.c2d.run_mesh_generatoin('airfoil.dat', working_dir=self.projectDir)
         #p2_to_su2_ogrid(self.projectDir + '/' + 'airfoil.p3d')
         c2dParser = Construct2dParser(self.projectDir + '/' + 'airfoil.p3d')
-        c2dParser.p3d_to_su2_cgrid(self.projectDir + '/' + 'airfoilMesh.su2')
+        c2dParser.p3d_to_su2_cgrid(self.projectDir + '/' + 'airfoilMesh.su2', scale=scale)
+        if savePlot:
+            print('saving mesh plot...')
+            c2dParser.plot_mesh(scale=scale)
 
         #if os.path.isfile(self.projectDir + '/' + 'airfoilMesh.su2'):
         #    os.remove(self.projectDir + '/' + 'airfoilMesh.su2')
@@ -67,7 +70,8 @@ class CFDrun:
 
     def su2_solve(self, config):
         print('start solving...')
-        self.su2.run_cfd('airfoilMeshFixed.su2', config, working_dir=self.projectDir)
+        self.su2.write_single_core_batch_file(working_dir=self.projectDir)
+        return self.su2.run_cfd('airfoilMeshFixed.su2', config, working_dir=self.projectDir)
 
     def su2_parse_results(self):
         print('parse results...')

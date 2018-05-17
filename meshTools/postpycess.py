@@ -41,7 +41,7 @@ def main():
 
         #   File prefix
         # prefix = pyviz_init()
-        prefix = 'naca2406'
+        prefix = 'airfoil'
 
         #   Grid file to read
         gridfile = prefix + '.p3d'
@@ -904,4 +904,4 @@ def plot_surface(x, y, plaincolor=None, topcolor=None, botcolor=None,
 ################################################################################
 
 # Run main program
-# main()
+main()

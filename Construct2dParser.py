@@ -31,18 +31,6 @@ class Construct2dParser:
         # 220, 100
         self.nNode, self.mNode, self.kmax, self.x, self.y, threed = meshTools.postpycess.read_grid(input_file_path)
 
-        #self.x = self.x * 36.
-        #self.y = self.y * 36.
-
-        colormap = 'jet'
-        plaincolor = 'black'
-        varname = None
-        plotvar = None
-        minvar = None
-        maxvar = None
-        #ax = meshTools.postpycess.plot_grid(self.x, self.y, colormap, plaincolor, varname, plotvar, minvar, maxvar)
-        #plt.show()
-
         self.pointList = np.zeros((self.nNode * self.mNode, 3))
         iPoint = 0
         for m in range(self.mNode):
@@ -59,6 +47,17 @@ class Construct2dParser:
     def get_pointID(self, n, m):
         return m * self.nNode + n
 
+    def plot_mesh(self, scale=1.):
+        colormap = 'jet'
+        plaincolor = 'black'
+        varname = None
+        plotvar = None
+        minvar = None
+        maxvar = None
+        ax = meshTools.postpycess.plot_grid(self.x * scale, self.y * scale, colormap, plaincolor, varname, plotvar, minvar, maxvar)
+        #plt.savefig(file_name, facecolor='w', edgecolor='w',
+        #orientation='landscape')
+        plt.show()
 
     def check_for_duplicates(self, listToCheck, x, y, oldId, ax):
         for l in listToCheck:

@@ -25,7 +25,7 @@ class BPAirfoil:
         # aerodynamic parameters
         self.r_le = -0.025  # nose radius
         self.beta_te = 0.15  # thickness angle trailing edge
-        self.dz_te = 0  # thickness trailing edge
+        self.dz_te = 0.  # thickness trailing edge
         self.x_t = 0.33  # dickenruecklage
         self.y_t = 0.07  # max thickness
 

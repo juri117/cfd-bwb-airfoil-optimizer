@@ -18,7 +18,7 @@ class Airfoil:
 
     #Specifies the kind of interpolation as a string (linear, nearest, zero, slinear, quadratic, cubic
 
-    INTERPOL_DEG = 'linear'
+    INTERPOL_DEG = 'cubic'
 
 
     def __init__(self, filename):
@@ -135,7 +135,7 @@ class Airfoil:
         xList = []
         yTopList = []
         yButtomList = []
-        for x in np.arange(-0.1, 1.1, 0.001):
+        for x in np.arange(-0.1, 1.1, 0.0001):
             xList.append(x)
             yTopList.append(self.get_top_y(x))
             yButtomList.append(self.get_buttom_y(x))
@@ -158,6 +158,6 @@ class Airfoil:
 
 
 if __name__ == '__main__':
-    air = Airfoil('../design/04_aerodynamics/profiles/BwBAirfoilFixed.csv')
-    air.rotate(-5)
+    air = Airfoil('dataIn/naca641-212.csv')
+    #air.rotate(-5)
     air.plotAirfoil()

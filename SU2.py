@@ -31,27 +31,39 @@ class SU2:
         if 'Exit Success (SU2_MSH)' in out.decode('UTF-8'):
             print('SU2_MSH process successful')
 
-    def run_cfd(self, input_su2_file, configDict, working_dir='outDir/'):
+    def write_single_core_batch_file(self, input_cfg_file='cfdRun.cfg', working_dir='outDir/'):
+        runCommand = '"'
+        runCommand += os.path.abspath(self.su2BinPath) + '/SU2_CFD.exe'
+        runCommand += '" '
+        runCommand += input_cfg_file
+        ouputF = open(working_dir + '/' + 'singleCoreCfdRun.bat', 'w')
+        ouputF.write(runCommand)
+        ouputF.close()
+
+    def write_multi_core_batch_file(self, input_cfg_file='cfdRun.cfg', working_dir='outDir/'):
+        runCommand = 'powershell.exe -Command '
+        runCommand += '"'
+        runCommand += self.mpiExec + ' '
+        runCommand += '-n ' + str(self.usedCores) + ' '
+        runCommand += os.path.abspath(self.su2BinPath) + '/SU2_CFD.exe '
+        runCommand += input_cfg_file
+        runCommand += '"'
+
+        ouputF = open(working_dir + '/' + 'cfdMpiRun.bat', 'w')
+        ouputF.write(runCommand)
+        ouputF.close()
+
+    def run_cfd(self, input_su2_file, configDict, input_cfg_file='cfdRun.cfg', working_dir='outDir/'):
         configDict['MESH_FILENAME'] = input_su2_file
         self.generate_config_file('cfdRun.cfg', configDict, working_dir=working_dir)
         print('run SU2_CFD on ' + str(self.usedCores) + ' core(s)...')
         if self.usedCores == 1:
             p = subprocess.Popen([self.su2BinPath + '/SU2_CFD',
-                                  'cfdRun.cfg'],
+                                  input_cfg_file],
                                  cwd=working_dir)#, stdout=subprocess.PIPE)
         else:
             ####powershell.exe -Command "mpiexec ../../su2-windows-latest/ExecParallel/bin/SU2_CFD.exe cfdRun.cfg"
-            runCommand = 'powershell.exe -Command '
-            runCommand += '"'
-            runCommand += self.mpiExec + ' '
-            runCommand += '-n ' + str(self.usedCores) + ' '
-            runCommand += os.path.abspath(self.su2BinPath) + '/SU2_CFD.exe '
-            runCommand += 'cfdRun.cfg'
-            runCommand += '"'
-
-            ouputF = open(working_dir + '/' + 'cfdMpiRun.bat', 'w')
-            ouputF.write(runCommand)
-            ouputF.close()
+            self.write_multi_core_batch_file(input_cfg_file=input_cfg_file, working_dir=working_dir)
             batchFilePath = os.path.abspath(working_dir + '/' + 'cfdMpiRun.bat')
             p = subprocess.Popen([batchFilePath], cwd=working_dir)
         p.wait()

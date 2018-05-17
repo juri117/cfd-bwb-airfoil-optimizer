@@ -20,8 +20,10 @@ from matplotlib.ticker import MaxNLocator
 
 
 MACH_NUM = 0.71
-REF_LENGTH = 36
-REF_AREA = 1
+REF_LENGTH = 36. # cd, cl no effect I guess
+REF_AREA = 36. # cd, cl get smaller
+
+SCALE = 36. # cd, cl get bigger
 
 
 config = dict()
@@ -37,11 +39,12 @@ config['MARKER_EULER'] = '( airfoil )'
 config['MARKER_FAR'] = '( farfield )'
 config['EXT_ITER'] = str(1000)
 config['OUTPUT_FORMAT'] = 'PARAVIEW'
-config['MG_DAMP_RESTRICTION'] = str(0.75)
-config['MG_DAMP_PROLONGATION'] = str(0.75)
+config['MG_DAMP_RESTRICTION'] = str(1.)
+config['MG_DAMP_PROLONGATION'] = str(1.)
 
 config['REF_LENGTH'] = str(REF_LENGTH)
 config['REF_AREA'] = str(REF_AREA)
+
 
 
 #for construct 2d
@@ -69,7 +72,7 @@ cfd.load_airfoil_from_file(INPUT_DIR + '/naca641-212.csv')
 #cfd.c2d.pointsInNormalDir = 100
 #cfd.c2d.pointNrAirfoilSurface = 250
 
-cfd.construct2d_generate_mesh()
+cfd.construct2d_generate_mesh(scale=SCALE, savePlot=False)
 cfd.su2_fix_mesh()
 cfd.su2_solve(config)
 results = cfd.su2_parse_iteration_result()

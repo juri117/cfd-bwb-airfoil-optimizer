@@ -52,6 +52,7 @@ class Construct2d:
     def enqueue_output(self, out, queue):
         for line in iter(out.readline, b''):
             queue.put(line)
+        print('closing')
         out.close()
 
     def write_to_console_and_enter(self, p, str):
@@ -62,29 +63,19 @@ class Construct2d:
         p.stdin.flush()
 
     def run_mesh_generatoin(self, input_dat_file_name, working_dir='dataOut/'):
-        #out_r, out_w = pty.openpty()
-
-
-        #p = subprocess.Popen([self.construct2dPath], cwd=working_dir,
-        #                            stdout=pipe_w,
-        #                            stderr=pipe_w, shell = False)
-        #                            #stdin=subprocess.PIPE)
+        self.errorFlag = False
 
         ON_POSIX = 'posix' in sys.builtin_module_names
-
-
 
         p = subprocess.Popen([self.construct2dPath], cwd=working_dir, stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, close_fds=ON_POSIX)
         q = Queue()
         t = Thread(target=self.enqueue_output, args=(p.stdout, q))
-        t.daemon = True  # thread dies with the program
+        #t.daemon = True  # thread dies with the program
         t.start()
 
-        time.sleep(1.)
         self.wait_for_keyword(q, 'QUIT')
         self.write_to_console_and_enter(p, input_dat_file_name)
         self.wait_for_keyword(q, 'QUIT')
-
 
         #enter airfoil surface options
         self.write_to_console_and_enter(p, 'SOPT')
@@ -132,34 +123,14 @@ class Construct2d:
         #quit
         self.write_to_console_and_enter(p, 'QUIT')
 
-
-        out, err = p.communicate()
-        if err == None:
-            print('run meshTools successful!')
+        if os.path.isfile(working_dir + '/' + input_dat_file_name.replace('.dat', '.p3d')):
+            print('p3d file created successfully')
         else:
-            print('ERROR: meshTools returned the error: ' + str(err))
-
-
-        # ... do other things here
-
-        # read line without blocking
-
-                # ... do something with line
-
-
-        #out = proc.stdout
-        #out, err = p.communicate(input_dat_file_name)
-        #print(out)
-        #p.stdin.write(input_dat_file_name)
-        #out, err = p.communicate('GRID')
-        #out = p.stdout.read()
-        #print(out)
-        #out, err = p.communicate('SMTH')
-        #print(out)
-        #out, err = p.communicate('QUIT')
-        #print(out)
+            print('ERROR: the p3d file could not be created as expected')
+            self.errorFlag = True
 
         print('done')
+        return self.errorFlag
 
 
 if __name__ == '__main__':
