@@ -32,14 +32,6 @@ if not os.path.isfile(GMSH_EXE_PATH):
     print('gmsh executable could not be found in: ' + GMSH_EXE_PATH)
     sys.exit(0)
 
-MACH_NUMBER = 0.78 #mach number cruise
-
-#compensate sweep deg
-SWEEP_LEADING_EDGE = 45
-
-MACH_SWEEP_COMPENSATED = MACH_NUMBER * math.sin(SWEEP_LEADING_EDGE * math.pi / 180)
-print('sweep compensated mach number: ' + str(MACH_SWEEP_COMPENSATED))
-
 #create working dir if necessary
 if not os.path.isdir(WORKING_DIR):
     os.mkdir(WORKING_DIR)
@@ -49,6 +41,20 @@ if not os.path.isfile(GMSH_EXE_PATH):
     print('gmsh executable could not be found in: ' + GMSH_EXE_PATH)
     sys.exit(0)
 
+LOG_FILE_PATH = WORKING_DIR + '/om_iterations_' + datetime.now().strftime('%Y-%m-%d_%H_%M_%S') + '.csv'
+
+MACH_NUMBER = 0.78 #mach number cruise
+#compensate sweep deg
+SWEEP_LEADING_EDGE = 45
+
+MACH_SWEEP_COMPENSATED = MACH_NUMBER * math.sin(SWEEP_LEADING_EDGE * math.pi / 180)
+print('sweep compensated mach number: ' + str(MACH_SWEEP_COMPENSATED))
+
+MACH_NUM = 0.71
+REF_LENGTH = 36. # cd, cl no effect I guess
+REF_AREA = 36. # cd, cl get smaller
+
+SCALE = 36. # cd, cl get bigger
 
 ### default config for SU2 run ###
 config = dict()
@@ -62,8 +68,13 @@ config['FREESTREAM_TEMPERATURE'] = str(220.79) #for altitude 10363 m
 #config['REF_AREA'] = str(1.0)
 config['MARKER_EULER'] = '( airfoil )'
 config['MARKER_FAR'] = '( farfield )'
-config['EXT_ITER'] = str(500)
+config['EXT_ITER'] = str(5000)
 config['OUTPUT_FORMAT'] = 'PARAVIEW'
+config['MG_DAMP_RESTRICTION'] = str(1.)
+config['MG_DAMP_PROLONGATION'] = str(1.)
+
+config['REF_LENGTH'] = str(REF_LENGTH)
+config['REF_AREA'] = str(REF_AREA)
 
 cabinLength = 0.55
 cabinHeigth = 0.13
@@ -150,23 +161,28 @@ class AirfoilCFD(ExplicitComponent):
         #self.air.set_coordinates(top, buttom)
         cfd.set_airfoul_coords(top, buttom)
 
-        cfd.construct2d_generate_mesh()
+        cfd.construct2d_generate_mesh(scale=SCALE, savePlot=False)
         cfd.su2_fix_mesh()
         cfd.su2_solve(config)
-        totalCL, totalCD, totalCM, totalE = cfd.su2_parse_results()
+        #totalCL, totalCD, totalCM, totalE = cfd.su2_parse_results()
+        results = cfd.su2_parse_iteration_result()
         cfd.clean_up()
 
-        outputs['c_d'] = totalCD
-        outputs['c_l'] = totalCL
-        outputs['c_m'] = totalCM
+        outputs['c_d'] = results['CD']
+        outputs['c_l'] = results['CL']
+        outputs['c_m'] = results['CMz']
         print('c_l= ' + str(outputs['c_l']))
         print('c_d= ' + str(outputs['c_d']))
         print('c_m= ' + str(outputs['c_m']))
+        print('c_l/c_d= ' + str(results['CL/CD']))
+        print('cfdIterations= ' + str(results['Iteration']))
         write_to_log(str(self.executionCounter) + ','
                      + datetime.now().strftime('%H:%M:%S') + ','
                      + str(outputs['c_l']) + ','
                      + str(outputs['c_d']) + ','
                      + str(outputs['c_m']) + ','
+                     + str(results['CL/CD']) + ','
+                     + str(results['Iteration']) + ','
                      + str(inputs['offsetFront']) + ','
                      + str(inputs['angle']) + ','
                      + str(inputs['r_le']) + ','
@@ -278,7 +294,9 @@ class CabinFitting(ExplicitComponent):
 
 
 def write_to_log(outStr):
-    outputF = open(WORKING_DIR + '/' + 'iterationRes.csv', 'a') #'a' so we append the file
+    outStr = outStr.replace('[', '')
+    outStr = outStr.replace(']', '')
+    outputF = open(LOG_FILE_PATH, 'a') #'a' so we append the file
     outputF.write(outStr + '\n')
     outputF.close()
 
@@ -390,12 +408,7 @@ if __name__ == '__main__':
     prob.model.add_constraint('airfoil_cfd.c_l', lower=0.23, upper=.3)
     prob.model.add_constraint('airfoil_cfd.c_m', lower=-0.05, upper=99.)
 
-    write_to_log('start iteration @' + datetime.now().strftime('%Y-%m-%d_%H_%M_%S'))
-    write_to_log('iterations,time,c_l,c_d,c_m,offsetFront,angle,r_le,beta_te,x_t,y_t,gamma_le,x_c,y_c,alpha_te,z_te,b_8,b_15,b_0,b_17,b_2]))')
-
-
-
-
+    write_to_log('iterations,time,c_l,c_d,c_m,CL/CD,cfdIterations,offsetFront,angle,r_le,beta_te,x_t,y_t,gamma_le,x_c,y_c,alpha_te,z_te,b_8,b_15,b_0,b_17,b_2]))')
 
     prob.setup()
     prob.set_solver_print(level=0)

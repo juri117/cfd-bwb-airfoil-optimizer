@@ -46,17 +46,6 @@ config['REF_LENGTH'] = str(REF_LENGTH)
 config['REF_AREA'] = str(REF_AREA)
 
 
-
-#for construct 2d
-normalMeshDivider = [100] #range(60, 500, 10)
-secondParam = [250]
-
-
-cdList = np.zeros((len(normalMeshDivider),len(secondParam)))
-clList = np.zeros((len(normalMeshDivider),len(secondParam)))
-cmList = np.zeros((len(normalMeshDivider),len(secondParam)))
-eList = np.zeros((len(normalMeshDivider),len(secondParam)))
-
 ouputF = open(WORKING_DIR + '/' + 'convergenceResult.txt', 'w')
 ouputF.write('innerMeshSize,outerMeshSize,CL,CD,CM,E,Iterations,Time(min)\n')
 
