@@ -11,7 +11,6 @@ from SU2 import SU2
 from BPAirfoil import BPAirfoil
 from Construct2d import Construct2d
 from Construct2dParser import Construct2dParser
-from meshTools.p3d2su2_OGrid import p2_to_su2_ogrid
 
 from constants import *
 

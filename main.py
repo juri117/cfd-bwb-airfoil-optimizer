@@ -314,7 +314,9 @@ if __name__ == '__main__':
 
     # load defaults from BPAirfoil
     bp = BPAirfoil()
-    bp.read_parameters_from_file(INPUT_DIR+'/'+'airfoil.txt')
+    # read last optimization result if available (has to be copied here manually)
+    if os.path.isfile(INPUT_DIR+'/'+'airfoil.txt'):
+        bp.read_parameters_from_file(INPUT_DIR+'/'+'airfoil.txt')
     indeps.add_output('r_le', bp.r_le)
     indeps.add_output('beta_te', bp.beta_te)
     #indeps.add_output('dz_te', bp.dz_te) # we want a sharp trailing edge
