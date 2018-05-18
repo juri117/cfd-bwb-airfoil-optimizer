@@ -123,6 +123,7 @@ class AirfoilCFD(ExplicitComponent):
         self.executionCounter = 0
 
     def compute(self, inputs, outputs):
+        error = False
         self.bzFoil.r_le = inputs['r_le']
         self.bzFoil.beta_te = inputs['beta_te']
         #self.bzFoil.dz_te = inputs['dz_te']
@@ -155,53 +156,63 @@ class AirfoilCFD(ExplicitComponent):
                                             show_plot=False,
                                             save_plot_path=WORKING_DIR+'/'+projectName+'/airfoil_cabin.png')
         if not self.bzFoil.valid:
-            raise AnalysisError('AirfoilCFD: invalid BPAirfoil')
+            #raise AnalysisError('AirfoilCFD: invalid BPAirfoil')
+            print('ERROR: AirfoilCFD, invalid BPAirfoil')
+            error = True
+        else:
+            top, buttom = self.bzFoil.get_cooridnates_top_buttom(500)
+            #self.air.set_coordinates(top, buttom)
+            cfd.set_airfoul_coords(top, buttom)
 
-        top, buttom = self.bzFoil.get_cooridnates_top_buttom(500)
-        #self.air.set_coordinates(top, buttom)
-        cfd.set_airfoul_coords(top, buttom)
+            cfd.construct2d_generate_mesh(scale=SCALE, savePlot=False)
+            cfd.su2_fix_mesh()
+            cfd.su2_solve(config)
+            #totalCL, totalCD, totalCM, totalE = cfd.su2_parse_results()
+            results = cfd.su2_parse_iteration_result()
+            cfd.clean_up()
 
-        cfd.construct2d_generate_mesh(scale=SCALE, savePlot=False)
-        cfd.su2_fix_mesh()
-        cfd.su2_solve(config)
-        #totalCL, totalCD, totalCM, totalE = cfd.su2_parse_results()
-        results = cfd.su2_parse_iteration_result()
-        cfd.clean_up()
+            if float(results['CD']) <= 0. or float(results['CD']) > 100.:
+                #raise AnalysisError('AirfoilCFD: c_d is out of range (cfd failed)')
+                print('ERROR: AirfoilCFD, c_d is out of range (cfd failed)')
+                error = True
 
-        if float(results['CD']) <= 0. or float(results['CD']) > 100.:
-            raise AnalysisError('AirfoilCFD: c_d is out of range (cfd failed)')
+            outputs['c_d'] = results['CD']
+            outputs['c_l'] = results['CL']
+            outputs['c_m'] = results['CMz']
+            print('c_l= ' + str(outputs['c_l']))
+            print('c_d= ' + str(outputs['c_d']))
+            print('c_m= ' + str(outputs['c_m']))
+            print('c_l/c_d= ' + str(results['CL/CD']))
+            print('cfdIterations= ' + str(results['Iteration']))
+            write_to_log(str(self.executionCounter) + ','
+                         + datetime.now().strftime('%H:%M:%S') + ','
+                         + str(outputs['c_l']) + ','
+                         + str(outputs['c_d']) + ','
+                         + str(outputs['c_m']) + ','
+                         + str(results['CL/CD']) + ','
+                         + str(results['Iteration']) + ','
+                         + str(inputs['offsetFront']) + ','
+                         + str(inputs['angle']) + ','
+                         + str(inputs['r_le']) + ','
+                         + str(inputs['beta_te']) + ','
+                         + str(inputs['x_t']) + ','
+                         + str(inputs['y_t']) + ','
+                         + str(inputs['gamma_le']) + ','
+                         + str(inputs['x_c']) + ','
+                         + str(inputs['y_c']) + ','
+                         + str(inputs['alpha_te']) + ','
+                         + str(inputs['z_te']) + ','
+                         + str(inputs['b_8']) + ','
+                         + str(inputs['b_15']) + ','
+                         + str(inputs['b_0']) + ','
+                         + str(inputs['b_17']) + ','
+                         + str(inputs['b_2']))
 
-        outputs['c_d'] = results['CD']
-        outputs['c_l'] = results['CL']
-        outputs['c_m'] = results['CMz']
-        print('c_l= ' + str(outputs['c_l']))
-        print('c_d= ' + str(outputs['c_d']))
-        print('c_m= ' + str(outputs['c_m']))
-        print('c_l/c_d= ' + str(results['CL/CD']))
-        print('cfdIterations= ' + str(results['Iteration']))
-        write_to_log(str(self.executionCounter) + ','
-                     + datetime.now().strftime('%H:%M:%S') + ','
-                     + str(outputs['c_l']) + ','
-                     + str(outputs['c_d']) + ','
-                     + str(outputs['c_m']) + ','
-                     + str(results['CL/CD']) + ','
-                     + str(results['Iteration']) + ','
-                     + str(inputs['offsetFront']) + ','
-                     + str(inputs['angle']) + ','
-                     + str(inputs['r_le']) + ','
-                     + str(inputs['beta_te']) + ','
-                     + str(inputs['x_t']) + ','
-                     + str(inputs['y_t']) + ','
-                     + str(inputs['gamma_le']) + ','
-                     + str(inputs['x_c']) + ','
-                     + str(inputs['y_c']) + ','
-                     + str(inputs['alpha_te']) + ','
-                     + str(inputs['z_te']) + ','
-                     + str(inputs['b_8']) + ','
-                     + str(inputs['b_15']) + ','
-                     + str(inputs['b_0']) + ','
-                     + str(inputs['b_17']) + ','
-                     + str(inputs['b_2']))
+        #workaround since raising an error seems to crash the optimization
+        if error:
+            outputs['c_d'] = 999.
+            outputs['c_l'] = 0.
+            outputs['c_m'] = 0.
         self.executionCounter += 1
 
 class CabinFitting(ExplicitComponent):
@@ -284,6 +295,7 @@ class CabinFitting(ExplicitComponent):
             height = yMaxTop - yMinButtom
             iterCounter += 1
         if not self.bzFoil.valid:
+            # this should never happen because the AirfoilCFD catches these...
             raise AnalysisError('CabinFitting: invalid BPAirfoil')
 
         #yMinButtom = max(self.air.get_buttom_y(xFront), self.air.get_buttom_y(xBack))
