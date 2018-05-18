@@ -85,8 +85,12 @@ class CFDrun:
         print('clean up...')
         if os.path.isfile(self.projectDir + '/airfoilMesh.su2'):
             os.remove(self.projectDir + '/airfoilMesh.su2')
-        if os.path.isfile(self.projectDir + '/airfoilMeshFixed.su2'):
-            os.remove(self.projectDir + '/airfoilMeshFixed.su2')
+        if os.path.isfile(self.projectDir + '/airfoil_stats.p3d'):
+            os.remove(self.projectDir + '/airfoil_stats.p3d')
+        if os.path.isfile(self.projectDir + '/airfoil.p3d'):
+            os.remove(self.projectDir + '/airfoil.p3d')
+        if os.path.isfile(self.projectDir + '/airfoil.nmf'):
+            os.remove(self.projectDir + '/airfoil.nmf')
         if os.path.isfile(self.projectDir + '/cfdMpiRun.bat'):
             os.remove(self.projectDir + '/cfdMpiRun.bat')
         if os.path.isfile(self.projectDir + '/restart_flow.dat'):
@@ -95,3 +99,5 @@ class CFDrun:
             os.remove(self.projectDir + '/original_grid.dat')
         if os.path.isfile(self.projectDir + '/meshFix.cfg'):
             os.remove(self.projectDir + '/meshFix.cfg')
+        if os.path.isfile(self.projectDir + '/surface_analysis.vtk'):
+            os.remove(self.projectDir + '/surface_analysis.vtk')
