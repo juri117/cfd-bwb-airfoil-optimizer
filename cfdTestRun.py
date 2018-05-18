@@ -61,7 +61,7 @@ cfd.load_airfoil_from_file(INPUT_DIR + '/naca641-212.csv')
 #cfd.c2d.pointsInNormalDir = 100
 #cfd.c2d.pointNrAirfoilSurface = 250
 
-cfd.construct2d_generate_mesh(scale=SCALE, savePlot=True)
+cfd.construct2d_generate_mesh(scale=SCALE, plot=False)
 cfd.su2_fix_mesh()
 cfd.su2_solve(config)
 results = cfd.su2_parse_iteration_result()

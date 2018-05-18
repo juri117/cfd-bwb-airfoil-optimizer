@@ -47,7 +47,7 @@ class CFDrun:
         self.gmsh.generate_geo_file(self.foilCoord, 'airfoilMesh.geo', 1000, working_dir=self.projectDir)
         self.gmsh.run_2d_geo_file('airfoilMesh.geo', 'airfoilMesh.su2', working_dir=self.projectDir)
 
-    def construct2d_generate_mesh(self, scale=1., savePlot=False):
+    def construct2d_generate_mesh(self, scale=1., plot=False):
         print('start meshing with construct2d...')
         self.airfoil.write_to_dat('airfoil.dat', working_dir=self.projectDir)
 
@@ -55,7 +55,7 @@ class CFDrun:
         #p2_to_su2_ogrid(self.projectDir + '/' + 'airfoil.p3d')
         c2dParser = Construct2dParser(self.projectDir + '/' + 'airfoil.p3d')
         c2dParser.p3d_to_su2_cgrid(self.projectDir + '/' + 'airfoilMesh.su2', scale=scale)
-        if savePlot:
+        if plot:
             print('saving mesh plot...')
             c2dParser.plot_mesh(scale=scale)
 
@@ -91,8 +91,6 @@ class CFDrun:
             os.remove(self.projectDir + '/airfoil.p3d')
         if os.path.isfile(self.projectDir + '/airfoil.nmf'):
             os.remove(self.projectDir + '/airfoil.nmf')
-        if os.path.isfile(self.projectDir + '/cfdMpiRun.bat'):
-            os.remove(self.projectDir + '/cfdMpiRun.bat')
         if os.path.isfile(self.projectDir + '/restart_flow.dat'):
             os.remove(self.projectDir + '/restart_flow.dat')
         if os.path.isfile(self.projectDir + '/original_grid.dat'):
