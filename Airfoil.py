@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 import math
+import sys
 
 class Airfoil:
 
@@ -23,22 +24,36 @@ class Airfoil:
 
     def __init__(self, filename):
         if filename != None:
-            airfoilData = np.genfromtxt(filename, delimiter=',')
-            #in the used csv database they stored first the upper shell coorinates and then the bottum both
-            #starting from the nose... so we separate the list here in top and buttom
-            i = 1
-            while airfoilData[i, 0] > 0.000001:
+            if filename.split('.')[-1] == 'dat':
+                airfoilData = np.genfromtxt(filename, delimiter=' ', skip_header=1)
+                # in the used csv database they stored first the upper shell coorinates and then the bottum both
+                # starting from the nose... so we separate the list here in top and buttom
+                topButSeperation = 0
+                for i in range(1, len(airfoilData[:,0])):
+                    if airfoilData[0][0] == 0. and airfoilData[i][0] == 1.:
+                        topButSeperation = i
+                        break
+                    if airfoilData[0][0] == 1. and airfoilData[i][0] == 0.:
+                        topButSeperation = i
+                        break
+                if topButSeperation == 0:
+                    print('Airfoil.py: I could not find out where the top and where the buttom shell of the airfoil is...')
+                    sys.exit(1)
+                self.airfoilTop = airfoilData[:topButSeperation]
+                self.airfoilButtom = airfoilData[topButSeperation:]
+            elif filename.split('.')[-1] == 'csv':
+                airfoilData = np.genfromtxt(filename, delimiter=',')
+                # in the used csv database they stored first the upper shell coorinates and then the bottum both
+                # starting from the nose... so we separate the list here in top and buttom
+                i = 1
+                while airfoilData[i, 0] > 0.000001:
                     i += 1
-            self.airfoilTop = airfoilData[:i]
-            self.airfoilButtom = airfoilData[i:]
+                self.airfoilTop = airfoilData[:i]
+                self.airfoilButtom = airfoilData[i:]
 
             self.originalTop = self.airfoilTop.copy()
             self.originalButtom = self.airfoilButtom.copy()
 
-            #easy as this we let scipy handle the interpolation
-            #the return is a function that can be called with an x coordinate... f(x)
-            #self.airfoilInterpolTop = interp1d(self.airfoilTop[:,0], self.airfoilTop[:,1], kind=self.INTERPOL_DEG)
-            #self.airfoilInterpolButtom = interp1d(self.airfoilButtom[:, 0], self.airfoilButtom[:, 1], kind=self.INTERPOL_DEG)
             self.rotate( 0.)
 
     def set_coordinates(self, top, buttom):
@@ -159,5 +174,6 @@ class Airfoil:
 
 if __name__ == '__main__':
     air = Airfoil('dataIn/naca641-212.csv')
+    #air = Airfoil('dataIn/vfw-va2.dat')
     #air.rotate(-5)
     air.plotAirfoil()

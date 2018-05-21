@@ -41,7 +41,7 @@ def main():
 
         #   File prefix
         # prefix = pyviz_init()
-        prefix = 'airfoil'
+        prefix = 'vfw-va2'
 
         #   Grid file to read
         gridfile = prefix + '.p3d'
@@ -114,7 +114,7 @@ def main():
         while (not plottypedone):
 
             validtype = False
-            plotselection = select_plot_type()
+            plotselection = '1'# select_plot_type()
 
             if plotselection == '1':
                 validtype = True
@@ -150,7 +150,7 @@ def main():
                 while (not plotdone):
 
                     validvar = False
-                    plotnum = select_plot_var(plottype, catglist, varlist)
+                    plotnum = '1'#select_plot_var(plottype, catglist, varlist)
 
                     #         Set variable by user input
                     if plotnum == '1':
@@ -183,6 +183,7 @@ def main():
                         if plottype == 'grid':
                             plot_grid(x, y, colormap, plaincolor,
                                       varname, plotvar, minvar, maxvar)
+                            plt.show()
                         elif plottype == 'contour':
                             plot_contours(x, y, colormap, plaincolor, contlevels,
                                           varname, plotvar, minvar, maxvar)

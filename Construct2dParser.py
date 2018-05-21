@@ -30,7 +30,10 @@ class Construct2dParser:
     def __init__(self, input_file_path):
         # 220, 100
         self.nNode, self.mNode, self.kmax, self.x, self.y, threed = meshTools.postpycess.read_grid(input_file_path)
+        self._create_point_list()
 
+
+    def _create_point_list(self):
         self.pointList = np.zeros((self.nNode * self.mNode, 3))
         iPoint = 0
         for m in range(self.mNode):
@@ -46,6 +49,20 @@ class Construct2dParser:
 
     def get_pointID(self, n, m):
         return m * self.nNode + n
+
+    def extend_wake(self, column_count):
+        offset = self.x[-1]
+        delta = self.x[-1] - self.x[-2]
+        for i in range(0, column_count):
+            xAdd = np.reshape((offset + (delta * (i+1))), (1, 100))
+            self.x = np.append(self.x, xAdd, axis=0)
+            self.x = np.append(xAdd, self.x, axis=0)
+            yAdd = np.reshape(self.y[-1], (1,100))
+            self.y = np.append(self.y, yAdd, axis=0)
+            yAdd = np.reshape(self.y[0], (1, 100))
+            self.y = np.append(yAdd, self.y, axis=0)
+            self.nNode += 2
+        self._create_point_list()
 
     def plot_mesh(self, scale=1.):
         colormap = 'jet'
@@ -225,6 +242,8 @@ class Construct2dParser:
 
 
 if __name__ == '__main__':
-    c2d2su2 = Construct2dParser('naca641-212.p3d')
+    c2d2su2 = Construct2dParser('meshTools/vfw-va2.p3d')
+    c2d2su2.extend_wake(50)
+    c2d2su2.plot_mesh()
     #c2d2su2 = Construct2dParser('meshTools/airfoil.p3d')
-    c2d2su2.p3d_to_su2_cgrid('mesh_.su2')
+    c2d2su2.p3d_to_su2_cgrid('meshTools/mesh.su2')
