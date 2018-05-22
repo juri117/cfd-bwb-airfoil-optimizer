@@ -192,6 +192,7 @@ def run_convergence_analysis_construct2d():
             print('iI: ' + str(iI) + ' iO: ' + str(iO))
 
 
+    ouputF.close()
     plt.pcolor(normalMeshDivider, secondParam, clList)
     plt.colorbar()
     plt.show()
