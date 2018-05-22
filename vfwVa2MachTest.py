@@ -76,7 +76,8 @@ su2 = SU2(SU2_BIN_PATH, used_cores=SU2_USED_CORES, mpi_exec=OS_MPI_COMMAND)
 
 machNr = range(60, 82, 2)
 machNr = [75]
-aoa = np.linspace(0, 6, 31)
+aoa = aoa = np.linspace(-4, 6, 51)
+aoa = [0.]
 
 ouputF = open(WORKING_DIR + '/' + 'machResult_' + datetime.now().strftime('%Y-%m-%d_%H_%M_%S') + '.csv', 'w')
 ouputF.write('machNr,AOA,CL,CD,CM,E,Iterations,Time(min)\n')

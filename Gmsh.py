@@ -21,6 +21,7 @@ class Gmsh:
 
         self.innerMeshSize = 0.005
         self.outerMeshSize = 0.5
+        self.recombinMesh = False
 
     #runns gmsh.exe from command line with to create a mesh file
     def run_2d_geo_file(self, input_file_name, output_file_name, working_dir='dataOut/', min_mesh_size=1e-10, max_mesh_size=1e22):
@@ -122,7 +123,8 @@ class Gmsh:
         #fout.write("Transfinite Line{3001} = 500;\n")
         #fout.write("Transfinite Surface{2000} = {1, 2};\n")
         fout.write("Physical Surface(2000) = {2000};\n")
-        fout.write("Recombine Surface{2000};\n")
+        if self.recombinMesh:
+            fout.write("Recombine Surface{2000};\n")
 
         fout.close()
 
