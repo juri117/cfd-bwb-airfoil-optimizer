@@ -10,6 +10,7 @@ __pycache__/*
 trash
 data
 dataOut*
+**/BAK*
 **/*.pyc
 **/*.lof
 **/*.out

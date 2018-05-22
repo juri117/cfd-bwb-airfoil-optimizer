@@ -11,6 +11,7 @@ from Airfoil import Airfoil
 from SU2 import SU2
 from BPAirfoil import BPAirfoil
 from CFDrun import CFDrun
+from constants import *
 
 from openmdao.core.explicitcomponent import ExplicitComponent
 from openmdao.api import Problem, ScipyOptimizeDriver, IndepVarComp, ExplicitComponent
@@ -20,14 +21,6 @@ from openmdao.core.problem import Problem
 from openmdao.core.group import Group
 from openmdao.core.indepvarcomp import IndepVarComp
 from openmdao.core.analysis_error import AnalysisError
-
-GMSH_EXE_PATH = 'gmsh/gmsh.exe'
-#SU2_BIN_PATH = 'D:/prog/portable/Luftfahrt/su2-windows-latest/ExecParallel/bin/'
-SU2_BIN_PATH = 'su2-windows-latest/ExecParallel/bin/'
-OS_MPI_COMMAND = 'mpiexec'
-SU2_USED_CORES = 4
-WORKING_DIR = 'dataOut/'
-INPUT_DIR = 'dataIn/'
 
 # create working dir if necessary
 if not os.path.isdir(WORKING_DIR):
@@ -91,7 +84,8 @@ for mach in machNr:
     cfd = CFDrun(projectName, used_cores=SU2_USED_CORES)
 
     cfd.load_airfoil_from_file(INPUT_DIR + '/vfw-va2.dat')
-    cfd.construct2d_generate_mesh()
+    #cfd.construct2d_generate_mesh(scale=REF_LENGTH)
+    cfd.gmsh_generate_mesh()
     cfd.su2_fix_mesh()
 
     config['MACH_NUMBER'] = str(mach / 100.)
