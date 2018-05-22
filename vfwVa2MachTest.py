@@ -5,6 +5,7 @@ __status__ = "Development"
 import os
 import sys
 import math
+from datetime import datetime
 
 from Gmsh import Gmsh
 from Airfoil import Airfoil
@@ -77,8 +78,8 @@ machNr = range(60, 82, 2)
 machNr = [75]
 aoa = np.linspace(0, 6, 31)
 
-ouputF = open(WORKING_DIR + '/' + 'machResult.txt', 'w')
-ouputF.write('innerMeshSize,outerMeshSize,CL,CD,CM,E,Iterations,Time(min)\n')
+ouputF = open(WORKING_DIR + '/' + 'machResult_' + datetime.now().strftime('%Y-%m-%d_%H_%M_%S') + '.csv', 'w')
+ouputF.write('machNr,AOA,CL,CD,CM,E,Iterations,Time(min)\n')
 
 for mach in machNr:
     for a in aoa:

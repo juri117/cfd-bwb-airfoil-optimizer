@@ -39,7 +39,7 @@ class Airfoil:
                 if topButSeperation == 0:
                     print('Airfoil.py: I could not find out where the top and where the buttom shell of the airfoil is...')
                     sys.exit(1)
-                self.airfoilTop = airfoilData[:topButSeperation]
+                self.airfoilTop = airfoilData[:topButSeperation+1]
                 self.airfoilButtom = airfoilData[topButSeperation:]
             elif filename.split('.')[-1] == 'csv':
                 airfoilData = np.genfromtxt(filename, delimiter=',')
@@ -70,8 +70,10 @@ class Airfoil:
         #elimenate duplicates
         listOut = np.array(top)
         for e in but:
-            if not e in listOut:
+            if not(e[0] == listOut[-1][0] and e[1] == listOut[-1][1]):
                 listOut = np.append(listOut, [e], axis=0)
+            else:
+                print('duplicate ' + str(e))
         return np.array(listOut)
 
     """
@@ -173,7 +175,7 @@ class Airfoil:
 
 
 if __name__ == '__main__':
-    air = Airfoil('dataIn/naca641-212.csv')
-    #air = Airfoil('dataIn/vfw-va2.dat')
+    #air = Airfoil('dataIn/naca641-212.csv')
+    air = Airfoil('dataIn/vfw-va2.dat')
     #air.rotate(-5)
     air.plotAirfoil()
