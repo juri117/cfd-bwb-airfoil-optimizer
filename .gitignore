@@ -7,7 +7,7 @@
 */.idea
 **/.DS_Store
 trash
-dataOut
+dataOut*
 **/BAK*
 **/*.pyc
 **/*.lof
