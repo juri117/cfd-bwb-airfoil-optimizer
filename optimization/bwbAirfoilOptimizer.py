@@ -412,9 +412,8 @@ def runOpenMdao():
 
     prob.model.add_objective('airfoil_cfd.c_d', scaler=1)
 
-    #prob.model.add_constraint('cabin_fitter.height', lower=0.090, upper=0.15)
-
-    prob.model.add_constraint('airfoil_cfd.c_l', lower=0.23, upper=.3)
+    #this is done by su2 now
+    #prob.model.add_constraint('airfoil_cfd.c_l', lower=0.23, upper=.3)
     prob.model.add_constraint('airfoil_cfd.c_m', lower=-0.05, upper=99.)
 
     write_to_log('iterations,time,c_l,c_d,c_m,CL/CD,cfdIterations,offsetFront,angle,r_le,beta_te,x_t,y_t,gamma_le,x_c,y_c,alpha_te,z_te,b_8,b_15,b_0,b_17,b_2]))')
