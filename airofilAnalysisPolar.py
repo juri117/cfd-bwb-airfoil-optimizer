@@ -74,22 +74,17 @@ for a in AOA:
     config['AOA'] = str(a)
     cfd.su2_solve(config)
 
-    totalCL, totalCD, totalCM, totalE = cfd.su2_parse_results()
-
-    print('totalCL: ' + str(totalCL))
-    print('totalCD: ' + str(totalCD))
     results = cfd.su2_parse_iteration_result()
-    # totalCL, totalCD, totalCM, totalE = cfd.su2_parse_results()
-    totalCL = results['CL']
-    totalCD = results['CD']
-    totalCM = results['CMz']
-    totalE = results['CL/CD']
+    cfd.clean_up()
+
+    print('totalCL: ' + str(results['CL']))
+    print('totalCD: ' + str(results['CD']))
     ouputF.write(str(MACH_NR) + ','
                  + str(a) + ','
-                 + str(totalCL) + ','
-                 + str(totalCD) + ','
-                 + str(totalCM) + ','
-                 + str(totalE) + ','
+                 + str(results['CL']) + ','
+                 + str(results['CD']) + ','
+                 + str(results['CMz']) + ','
+                 + str(results['CL/CD']) + ','
                  + str(results['Iteration']) + ','
                  + str(results['Time(min)']) + '\n')
     ouputF.flush()

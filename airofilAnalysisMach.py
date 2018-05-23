@@ -53,6 +53,8 @@ su2 = SU2(SU2_BIN_PATH, used_cores=SU2_USED_CORES, mpi_exec=OS_MPI_COMMAND)
 ouputF = open(WORKING_DIR + '/' + 'machResult_' + datetime.now().strftime('%Y-%m-%d_%H_%M_%S') + '.csv', 'w')
 ouputF.write('machNr,AOA,CL,CD,CM,E,Iterations,Time(min)\n')
 
+
+
 for mach in MACH_NR:
     projectName = 'analysis_mach_%0.3f' % (mach)
     projectDir = WORKING_DIR + '/' + projectName
@@ -67,25 +69,21 @@ for mach in MACH_NR:
     cfd.gmsh_generate_mesh(scale=REF_LENGTH)
     cfd.su2_fix_mesh()
 
-    config['MACH_NUMBER'] = str(mach / 100.)
+    config['MACH_NUMBER'] = str(mach)
     cfd.su2_solve(config)
 
-    totalCL, totalCD, totalCM, totalE = cfd.su2_parse_results()
-
-    print('totalCL: ' + str(totalCL))
-    print('totalCD: ' + str(totalCD))
     results = cfd.su2_parse_iteration_result()
-    # totalCL, totalCD, totalCM, totalE = cfd.su2_parse_results()
-    totalCL = results['CL']
-    totalCD = results['CD']
-    totalCM = results['CMz']
-    totalE = results['CL/CD']
+    cfd.clean_up()
+
+    print('totalCL: ' + str(results['CL']))
+    print('totalCD: ' + str(results['CD']))
+
     ouputF.write(str(mach / 100.) + ','
                  + str(results['AOA']) + ','
-                 + str(totalCL) + ','
-                 + str(totalCD) + ','
-                 + str(totalCM) + ','
-                 + str(totalE) + ','
+                 + str(results['CL']) + ','
+                 + str(results['CD']) + ','
+                 + str(results['CMz']) + ','
+                 + str(results['CL/CD']) + ','
                  + str(results['Iteration']) + ','
                  + str(results['Time(min)']) + '\n')
     ouputF.flush()
