@@ -23,73 +23,53 @@ from openmdao.core.group import Group
 from openmdao.core.indepvarcomp import IndepVarComp
 from openmdao.core.analysis_error import AnalysisError
 
-# create working dir if necessary
-if not os.path.isdir(WORKING_DIR):
-    os.mkdir(WORKING_DIR)
-
-# check if gmsh exe exists
-if not os.path.isfile(GMSH_EXE_PATH):
-    print('gmsh executable could not be found in: ' + GMSH_EXE_PATH)
-    sys.exit(0)
-
-#create working dir if necessary
-if not os.path.isdir(WORKING_DIR):
-    os.mkdir(WORKING_DIR)
-
-#check if gmsh exe exists
-if not os.path.isfile(GMSH_EXE_PATH):
-    print('gmsh executable could not be found in: ' + GMSH_EXE_PATH)
-    sys.exit(0)
-
 LOG_FILE_PATH = WORKING_DIR + '/om_iterations_' + datetime.now().strftime('%Y-%m-%d_%H_%M_%S') + '.csv'
 
 PROJECT_NAME_PREFIX = 'iter'
 
-MACH_NUMBER = 0.78  # mach number cruise
+MACH_NUMBER = 0.85  # mach number cruise
 # compensate sweep deg
 SWEEP_LEADING_EDGE = 45
 
-MACH_SWEEP_COMPENSATED = MACH_NUMBER * math.sin(SWEEP_LEADING_EDGE * math.pi / 180)
+MACH_SWEEP_COMPENSATED = MACH_NUMBER * math.sqrt(math.cos(SWEEP_LEADING_EDGE * math.pi / 180))
 print('sweep compensated mach number: ' + str(MACH_SWEEP_COMPENSATED))
 
-MACH_NUM = 0.71
-REF_LENGTH = 80.  # cd, cl no effect I guess
-REF_AREA = 80.  # cd, cl get smaller
+MACH_NR = MACH_SWEEP_COMPENSATED
+REF_LENGTH = 40.  # cd, cl no effect I guess
+REF_AREA = 40.  # cd, cl get smaller
 
-SCALE = 80.  # cd, cl get bigger
+SCALE = 40.  # cd, cl get bigger
 
 
 speedOfSound = 307.828 # for altitude 10363 m
 dynamicViscosity = 0.0000153872 # for altitude 10363 m
-REYNOLD = speedOfSound * REF_LENGTH * MACH_NUM / dynamicViscosity
+REYNOLD = speedOfSound * REF_LENGTH * MACH_NR / dynamicViscosity
 print('Reynolds-Number: ' + str(REYNOLD))
 
 ### default config for SU2 run ###
 config = dict()
-config['PHYSICAL_PROBLEM'] = 'EULER'
-config['MACH_NUMBER'] = str(MACH_SWEEP_COMPENSATED)
-config['AOA'] = str(0.0)
-config['FREESTREAM_PRESSURE'] = str(24999.8)  # for altitude 10363 m
-config['FREESTREAM_TEMPERATURE'] = str(220.79)  # for altitude 10363 m
-# config['GAS_CONSTANT'] = str(287.87)
-# config['REF_LENGTH'] = str(1.0)
-# config['REF_AREA'] = str(1.0)
-config['MARKER_EULER'] = '( airfoil )'
-config['MARKER_FAR'] = '( farfield )'
+config['FIXED_CL_MODE'] = 'YES'
+config['TARGET_CL'] = 0.15
+
+config['MACH_NUMBER'] = str(MACH_NR)
+config['FREESTREAM_PRESSURE'] = str(24999.8) #for altitude 10363 m
+config['FREESTREAM_TEMPERATURE'] = str(220.79) #for altitude 10363 m
+#config['GAS_CONSTANT'] = str(287.87)
+#config['REF_LENGTH'] = str(1.0)
+#config['REF_AREA'] = str(1.0)
 config['EXT_ITER'] = str(9999)
 config['OUTPUT_FORMAT'] = 'PARAVIEW'
-config['MG_DAMP_RESTRICTION'] = str(1.)
-config['MG_DAMP_PROLONGATION'] = str(1.)
 
+#REF_LENGTH = 1.
+#REF_AREA = 1.
+#REYNOLD = 6e6
 config['REF_LENGTH'] = str(REF_LENGTH)
 config['REF_AREA'] = str(REF_AREA)
 config['REYNOLDS_NUMBER'] = str(REYNOLD)
 config['REYNOLDS_LENGTH'] = str(1.)
 
-config['CFL_NUMBER'] = str(0.5)
-
 cabinLength = 0.55
-cabinHeigth = 0.13
+cabinHeigth = 0.14
 
 class AirfoilCFD(ExplicitComponent):
 

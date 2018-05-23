@@ -9,9 +9,10 @@ import optimization.bwbAirfoilOptimizer as opti
 
 try:
     opti.cabinLength = 0.55
-    opti.cabinHeigth = 0.13
+    opti.cabinHeigth = 0.14
     opti.PROJECT_NAME_PREFIX = 'test01'
     opti.config['AOA'] = str(0.0)
+    opti.config['TARGET_CL'] = 0.15
     opti.runOpenMdao()
 except:
     print('#################################################################')
@@ -20,6 +21,7 @@ except:
     traceback.print_exc()
     print('#################################################################')
 
+"""
 try:
     opti.cabinLength = 0.55
     opti.cabinHeigth = 0.14
@@ -45,3 +47,4 @@ except:
     print('')
     traceback.print_exc()
     print('#################################################################')
+"""
