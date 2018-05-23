@@ -6,11 +6,11 @@ import os
 import sys
 import math
 
-from Gmsh import Gmsh
-from Airfoil import Airfoil
-from SU2 import SU2
-from BPAirfoil import BPAirfoil
-from CFDrun import CFDrun
+from meshing.Gmsh import Gmsh
+from airfoil.Airfoil import Airfoil
+from cfd.SU2 import SU2
+from airfoil.BPAirfoil import BPAirfoil
+from cfd.CFDrun import CFDrun
 from constants import *
 
 from openmdao.core.explicitcomponent import ExplicitComponent

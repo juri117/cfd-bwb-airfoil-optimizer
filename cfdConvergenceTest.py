@@ -2,38 +2,12 @@ __author__ = "Juri Bieler"
 __version__ = "0.0.1"
 __status__ = "Development"
 
-import os
-import sys
-import math
 import numpy as np
 
-from Gmsh import Gmsh
-from Airfoil import Airfoil
-from SU2 import SU2
-from BPAirfoil import BPAirfoil
-from CFDrun import CFDrun
+from cfd.CFDrun import CFDrun
+from constants import *
 
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
-
-
-GMSH_EXE_PATH = 'gmsh/gmsh.exe'
-#SU2_BIN_PATH = 'D:/prog/portable/Luftfahrt/su2-windows-latest/ExecParallel/bin/'
-SU2_BIN_PATH = 'su2-windows-latest/ExecParallel/bin/'
-OS_MPI_COMMAND = 'mpiexec'
-SU2_USED_CORES = 4
-WORKING_DIR = 'dataOut/'
-INPUT_DIR = 'dataIn/'
-
-# create working dir if necessary
-if not os.path.isdir(WORKING_DIR):
-    os.mkdir(WORKING_DIR)
-
-# check if gmsh exe exists
-if not os.path.isfile(GMSH_EXE_PATH):
-    print('gmsh executable could not be found in: ' + GMSH_EXE_PATH)
-    sys.exit(0)
-
 
 
 ##################################

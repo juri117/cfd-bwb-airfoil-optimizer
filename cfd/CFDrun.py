@@ -3,14 +3,13 @@ __version__ = "0.0.1"
 __status__ = "Development"
 
 import os
-import sys
 
-from Gmsh import Gmsh
-from Airfoil import Airfoil
-from SU2 import SU2
-from BPAirfoil import BPAirfoil
-from Construct2d import Construct2d
-from Construct2dParser import Construct2dParser
+from meshing.Gmsh import Gmsh
+from airfoil.Airfoil import Airfoil
+from cfd.SU2 import SU2
+from airfoil.BPAirfoil import BPAirfoil
+from meshing.Construct2d import Construct2d
+from meshing.Construct2dParser import Construct2dParser
 
 from constants import *
 

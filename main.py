@@ -2,19 +2,10 @@ __author__ = "Juri Bieler"
 __version__ = "0.0.1"
 __status__ = "Development"
 
-import os
-import sys
-import math
+from constants import *
 import traceback
 
-from Gmsh import Gmsh
-from Airfoil import Airfoil
-from SU2 import SU2
-from BPAirfoil import BPAirfoil
-from CFDrun import CFDrun
-from constants import *
-
-import bwbAirfoilOptimizer as opti
+import optimization.bwbAirfoilOptimizer as opti
 
 try:
     opti.cabinLength = 0.55

@@ -4,7 +4,6 @@ __status__ = "Development"
 
 import subprocess
 import os
-import numpy as np
 import re
 
 class SU2:

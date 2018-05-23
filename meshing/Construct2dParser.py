@@ -1,5 +1,5 @@
 import string
-import meshTools.postpycess
+import meshing.postpycess
 import numpy as np
 import matplotlib.pyplot as plt
 import random
@@ -29,7 +29,7 @@ class Construct2dParser:
 
     def __init__(self, input_file_path):
         # 220, 100
-        self.nNode, self.mNode, self.kmax, self.x, self.y, threed = meshTools.postpycess.read_grid(input_file_path)
+        self.nNode, self.mNode, self.kmax, self.x, self.y, threed = meshing.postpycess.read_grid(input_file_path)
         self._create_point_list()
 
 

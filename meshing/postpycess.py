@@ -905,4 +905,4 @@ def plot_surface(x, y, plaincolor=None, topcolor=None, botcolor=None,
 ################################################################################
 
 # Run main program
-main()
+#main()
