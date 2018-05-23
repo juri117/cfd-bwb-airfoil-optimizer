@@ -42,9 +42,9 @@ class CFDrun:
         self.airfoil.set_coordinates(top, buttom)
         self.foilCoord = self.airfoil.get_sorted_point_list()
 
-    def gmsh_generate_mesh(self):
+    def gmsh_generate_mesh(self, scale=1.):
         print('start meshing with gmsh...')
-        self.gmsh.generate_geo_file(self.foilCoord, 'airfoilMesh.geo', 1000, working_dir=self.projectDir)
+        self.gmsh.generate_geo_file(self.foilCoord, 'airfoilMesh.geo', 1000, working_dir=self.projectDir, scale=scale)
         self.gmsh.run_2d_geo_file('airfoilMesh.geo', 'airfoilMesh.su2', working_dir=self.projectDir)
 
     def construct2d_generate_mesh(self, scale=1., plot=False):

@@ -14,6 +14,7 @@ class SU2:
         self.usedCores = used_cores
         self.mpiExec = mpi_exec
         self.errorFlag = False
+        self.copyComments = False
 
     def fix_mesh(self, input_su2_file, output_su2_file, working_dir='outDir/'):
         config = dict()
@@ -88,7 +89,7 @@ class SU2:
         for line in lines:
             #just copy the comments
             if len(line) > 0:
-                if line.lstrip()[0] == '%':
+                if line.lstrip()[0] == '%' and self.copyComments:
                     ouputF.write(line + '\n')
                 else:
                     paramName = line.strip().replace(' ','').split('=')[0].upper()

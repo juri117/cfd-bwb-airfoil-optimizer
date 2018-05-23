@@ -58,7 +58,7 @@ config['MARKER_FAR'] = '( farfield )'
 config['EXT_ITER'] = str(9999)
 config['OUTPUT_FORMAT'] = 'PARAVIEW'
 
-REF_LENGTH = 1.
+REF_LENGTH = 4.
 REF_AREA = 1.
 REYNOLD = 6e6
 config['REF_LENGTH'] = str(REF_LENGTH)
@@ -95,7 +95,7 @@ for mach in machNr:
 
         cfd.load_airfoil_from_file(INPUT_DIR + '/vfw-va2.dat')
         #cfd.construct2d_generate_mesh(scale=REF_LENGTH)
-        cfd.gmsh_generate_mesh()
+        cfd.gmsh_generate_mesh(scale=REF_LENGTH)
         cfd.su2_fix_mesh()
 
         config['MACH_NUMBER'] = str(mach / 100.)

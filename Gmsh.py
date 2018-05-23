@@ -22,6 +22,14 @@ class Gmsh:
         self.innerMeshSize = 0.005
         self.outerMeshSize = 0.5
         self.recombinMesh = False
+        #self.scale = 1.
+        self.farfieldRadi = 10.
+        #number of points on one quarter of the radius
+        self.pointsOnRadi = 20
+        #number of points on wake per length farfieldRadi
+        self.pointsOnWake = 10
+        #farfield wake length in multiple of radi
+        self.farfieldWakeLength = 4
 
     #runns gmsh.exe from command line with to create a mesh file
     def run_2d_geo_file(self, input_file_name, output_file_name, working_dir='dataOut/', min_mesh_size=1e-10, max_mesh_size=1e22):
@@ -50,7 +58,7 @@ class Gmsh:
             self.errorFlag = True
         return
 
-    def generate_geo_file(self, airfoil_points, output_file_name, startIndex, working_dir='dataOut/'):
+    def generate_geo_file(self, airfoil_points, output_file_name, startIndex, working_dir='dataOut/', scale=1.):
         ## Read in data using this bit
         #fin = open(filename, 'r')
         #i = 0
@@ -78,8 +86,8 @@ class Gmsh:
         # Write data out with this;
 
         n_lines = len(airfoil_points)
-        x = airfoil_points[:,0]
-        y = airfoil_points[:,1]
+        x = airfoil_points[:,0] * scale
+        y = airfoil_points[:,1] * scale
         z = np.zeros(n_lines)
 
         fout = open(working_dir + '/' + output_file_name, 'w')
@@ -100,23 +108,41 @@ class Gmsh:
                    % (startIndex, startIndex, startIndex + n_lines - 1, startIndex))
 
         # generate circular farfield
-        fout.write("radius = %i;\n" % (10))
+
+        fout.write("radius = %i;\n" % (self.farfieldRadi * scale))
         fout.write("farfield_lc = %f;\n" % (self.outerMeshSize))
         fout.write("Point(11) = {0, 0, 0, farfield_lc};\n")
         fout.write("Point(12) = {0, -radius, 0, farfield_lc};\n")
         fout.write("Point(13) = {-radius, 0, 0, farfield_lc};\n")
         fout.write("Point(14) = {0, radius, 0, farfield_lc};\n")
-        fout.write("Point(15) = {4 * radius, radius, 0, farfield_lc};\n")
-        fout.write("Point(16) = {4 * radius, -radius, 0, farfield_lc};\n")
+        fout.write("Point(15) = {%d * radius, radius, 0, farfield_lc};\n" % (self.farfieldWakeLength))
+        fout.write("Point(16) = {%d * radius, -radius, 0, farfield_lc};\n" % (self.farfieldWakeLength))
         fout.write("Circle(21) = {12, 11, 13};\n")
         fout.write("Circle(22) = {13, 11, 14};\n")
         fout.write("Line(25) = {14, 15};\n")
         fout.write("Line(26) = {15, 16};\n")
         fout.write("Line(27) = {16, 12};\n")
         fout.write("Line Loop(1) = {21, 22, 25, 26, 27};\n")
+        fout.write("\n")
 
         fout.write("Line Loop(2) = {1000};\n")
         fout.write("Plane Surface(2000) = {1, 2};\n")
+        fout.write("\n")
+
+
+        #new test
+        # Using Progression 2.00
+        fout.write("// define points on farfield\n")
+        fout.write("Transfinite Line{25} = %d;\n" % (self.pointsOnWake * self.farfieldWakeLength))
+        fout.write("Transfinite Line{26} = %d;\n" % (self.pointsOnWake * 2))
+        fout.write("Transfinite Line{27} = %d;\n" % (self.pointsOnWake * self.farfieldWakeLength))
+        fout.write("// circle\n")
+        fout.write("Transfinite Line{21} = %d;\n" % (self.pointsOnRadi))
+        fout.write("Transfinite Line{22} = %d;\n" % (self.pointsOnRadi))
+        fout.write("\n")
+        #end new test
+
+
         fout.write("Physical Line(\"airfoil\") = {1000};\n")
         fout.write("Physical Line(\"farfield\") = {21, 22, 25, 26, 27};\n")
         #fout.write("Transfinite Line{1000} = 500;\n")

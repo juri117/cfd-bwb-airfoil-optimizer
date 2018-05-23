@@ -25,7 +25,7 @@ class Airfoil:
     def __init__(self, filename):
         if filename != None:
             if filename.split('.')[-1] == 'dat':
-                airfoilData = np.genfromtxt(filename, delimiter=' ', skip_header=1)
+                airfoilData = np.genfromtxt(filename, skip_header=1)
                 # in the used csv database they stored first the upper shell coorinates and then the bottum both
                 # starting from the nose... so we separate the list here in top and buttom
                 topButSeperation = 0
@@ -40,6 +40,8 @@ class Airfoil:
                     print('Airfoil.py: I could not find out where the top and where the buttom shell of the airfoil is...')
                     sys.exit(1)
                 self.airfoilTop = airfoilData[:topButSeperation+1]
+                if abs(airfoilData[topButSeperation][0] - airfoilData[topButSeperation+1][0]) >= 1:
+                    topButSeperation += 1
                 self.airfoilButtom = airfoilData[topButSeperation:]
             elif filename.split('.')[-1] == 'csv':
                 airfoilData = np.genfromtxt(filename, delimiter=',')
@@ -176,6 +178,7 @@ class Airfoil:
 
 if __name__ == '__main__':
     #air = Airfoil('dataIn/naca641-212.csv')
-    air = Airfoil('dataIn/vfw-va2.dat')
+    #air = Airfoil('dataIn/vfw-va2.dat')
+    air = Airfoil('dataIn/RAE2822_turb.dat')
     #air.rotate(-5)
     air.plotAirfoil()
