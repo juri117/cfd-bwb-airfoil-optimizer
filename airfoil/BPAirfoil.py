@@ -1,8 +1,10 @@
+__author__ = "Lennart Kracke"
+__version__ = "0.0.1"
+__status__ = "Development"
+
 # ==============================================================================
 # description     :creates airfoil coordinates with bezier-parsec parametrization (http://pubs.sciepub.com/ajme/2/4/1/)
-# author          :Lennart Kracke
 # date            :2018-04-24
-# version         :0.1a
 # notes           :420 blaze it
 # python_version  :3.6
 # ==============================================================================
@@ -14,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import interp1d
 from operator import add
-from Airfoil import Airfoil
+from airfoil.Airfoil import Airfoil
 
 
 class BPAirfoil:
