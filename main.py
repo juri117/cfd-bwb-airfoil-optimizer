@@ -12,7 +12,9 @@ try:
     opti.cabinHeigth = 0.14
     opti.PROJECT_NAME_PREFIX = 'test01'
     opti.config['AOA'] = str(0.0)
-    opti.config['TARGET_CL'] = str(0.15)
+    #opti.config['UPDATE_ALPHA'] = str(10)
+    #opti.config['FIXED_CL_MODE'] = 'NO'
+    #opti.config['TARGET_CL'] = str(0.25)
     opti.runOpenMdao()
 except:
     print('#################################################################')

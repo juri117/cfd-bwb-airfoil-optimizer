@@ -48,8 +48,8 @@ print('Reynolds-Number: ' + str(REYNOLD))
 
 ### default config for SU2 run ###
 config = dict()
-config['FIXED_CL_MODE'] = 'YES'
-config['TARGET_CL'] = 0.15
+config['FIXED_CL_MODE'] = 'NO'
+#config['TARGET_CL'] = 0.15
 
 config['MACH_NUMBER'] = str(MACH_NR)
 config['FREESTREAM_PRESSURE'] = str(24999.8) #for altitude 10363 m
@@ -57,7 +57,7 @@ config['FREESTREAM_TEMPERATURE'] = str(220.79) #for altitude 10363 m
 #config['GAS_CONSTANT'] = str(287.87)
 #config['REF_LENGTH'] = str(1.0)
 #config['REF_AREA'] = str(1.0)
-config['EXT_ITER'] = str(9999)
+config['EXT_ITER'] = str(50000)
 config['OUTPUT_FORMAT'] = 'PARAVIEW'
 
 #REF_LENGTH = 1.
@@ -66,7 +66,7 @@ config['OUTPUT_FORMAT'] = 'PARAVIEW'
 config['REF_LENGTH'] = str(REF_LENGTH)
 config['REF_AREA'] = str(REF_AREA)
 config['REYNOLDS_NUMBER'] = str(REYNOLD)
-config['REYNOLDS_LENGTH'] = str(1.)
+config['REYNOLDS_LENGTH'] = str(REF_LENGTH)
 
 cabinLength = 0.55
 cabinHeigth = 0.14
@@ -412,8 +412,7 @@ def runOpenMdao():
 
     prob.model.add_objective('airfoil_cfd.c_d', scaler=1)
 
-    #this is done by su2 now
-    #prob.model.add_constraint('airfoil_cfd.c_l', lower=0.23, upper=.3)
+    prob.model.add_constraint('airfoil_cfd.c_l', lower=0.145, upper=.155)
     prob.model.add_constraint('airfoil_cfd.c_m', lower=-0.05, upper=99.)
 
     write_to_log('iterations,time,c_l,c_d,c_m,CL/CD,cfdIterations,offsetFront,angle,r_le,beta_te,x_t,y_t,gamma_le,x_c,y_c,alpha_te,z_te,b_8,b_15,b_0,b_17,b_2]))')
