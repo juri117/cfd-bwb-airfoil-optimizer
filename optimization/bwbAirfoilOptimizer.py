@@ -59,7 +59,7 @@ config['FREESTREAM_TEMPERATURE'] = str(220.79) #for altitude 10363 m
 #config['GAS_CONSTANT'] = str(287.87)
 #config['REF_LENGTH'] = str(1.0)
 #config['REF_AREA'] = str(1.0)
-config['EXT_ITER'] = str(9999)
+config['EXT_ITER'] = str(5000)
 config['OUTPUT_FORMAT'] = 'PARAVIEW'
 
 cabinLength = 0.55
@@ -151,8 +151,9 @@ class AirfoilCFD(ExplicitComponent):
             cfd.set_airfoul_coords(top, buttom)
 
             #cfd.c2d.reynoldsNum = REYNOLD
-            cfd.c2d.pointsInNormalDir = 50
-            cfd.c2d.pointNrAirfoilSurface = 100
+            cfd.c2d.pointsInNormalDir = 80
+            cfd.c2d.pointNrAirfoilSurface = 200
+            cfd.c2d.reynoldsNum = REYNOLD
             cfd.construct2d_generate_mesh(scale=SCALE, plot=False)
             cfd.su2_fix_mesh()
             cfd.su2_solve(config)

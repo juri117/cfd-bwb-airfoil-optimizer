@@ -90,8 +90,8 @@ class CFDrun:
             os.remove(self.projectDir + '/airfoil.p3d')
         if os.path.isfile(self.projectDir + '/airfoil.nmf'):
             os.remove(self.projectDir + '/airfoil.nmf')
-        if os.path.isfile(self.projectDir + '/restart_flow.dat'):
-            os.remove(self.projectDir + '/restart_flow.dat')
+        #if os.path.isfile(self.projectDir + '/restart_flow.dat'):
+        #    os.remove(self.projectDir + '/restart_flow.dat')
         if os.path.isfile(self.projectDir + '/original_grid.dat'):
             os.remove(self.projectDir + '/original_grid.dat')
         if os.path.isfile(self.projectDir + '/meshFix.cfg'):

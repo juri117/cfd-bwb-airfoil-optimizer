@@ -10,7 +10,7 @@ import optimization.bwbAirfoilOptimizer as opti
 try:
     opti.cabinLength = 0.55
     opti.cabinHeigth = 0.14
-    opti.PROJECT_NAME_PREFIX = 'test01'
+    opti.PROJECT_NAME_PREFIX = 'bwbCenter_'
     opti.config['AOA'] = str(0.0)
     #opti.config['UPDATE_ALPHA'] = str(10)
     #opti.config['FIXED_CL_MODE'] = 'NO'
