@@ -20,15 +20,11 @@ if not os.path.isdir(WORKING_DIR):
     os.mkdir(WORKING_DIR)
 
 # check if gmsh exe exists
+GMSH_EXE_PATH = os.path.abspath(GMSH_EXE_PATH)
 if not os.path.isfile(GMSH_EXE_PATH):
-    # check if path is relative
-    GMSH_EXE_PATH = sys.path[0] + '/' + GMSH_EXE_PATH
-    if not os.path.isfile(GMSH_EXE_PATH):
-        print('WARNING: gmsh executable could not be found in: ' + GMSH_EXE_PATH)
+    print('WARNING: gmsh executable could not be found in: ' + GMSH_EXE_PATH)
 
 # check if construct2d exe exists
+CONSTRUCT2D_EXE_PATH = os.path.abspath(CONSTRUCT2D_EXE_PATH)
 if not os.path.isfile(CONSTRUCT2D_EXE_PATH):
-    # check if path is relative
-    CONSTRUCT2D_EXE_PATH = sys.path[0] + '/' + CONSTRUCT2D_EXE_PATH
-    if not os.path.isfile(CONSTRUCT2D_EXE_PATH):
-        print('WARNING: construct2d executable could not be found in: ' + CONSTRUCT2D_EXE_PATH)
+    print('WARNING: construct2d executable could not be found in: ' + CONSTRUCT2D_EXE_PATH)

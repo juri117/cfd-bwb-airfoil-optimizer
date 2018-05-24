@@ -34,6 +34,7 @@ class Construct2d:
         self.farfieldRadius = 15.0
         self.useCGrid = True
         self.pointsInNormalDir = 100
+        self.reynoldsNum = 1e6
 
     def wait_for_keyword(self, que, word):
         while (True):
@@ -110,6 +111,14 @@ class Construct2d:
         self.wait_for_keyword(q, 'Current')
         self.write_to_console_and_enter(p, str(self.pointsInNormalDir))
         self.wait_for_keyword(q, 'QUIT')
+        #enter reynolds number
+        self.write_to_console_and_enter(p, 'RECD')
+        self.wait_for_keyword(q, 'Current')
+        self.write_to_console_and_enter(p, str(self.reynoldsNum))
+        self.wait_for_keyword(q, 'QUIT')
+
+
+
         # go back
         self.write_to_console_and_enter(p, 'QUIT')
         self.wait_for_keyword(q, 'QUIT')

@@ -71,7 +71,7 @@ class Construct2dParser:
         plotvar = None
         minvar = None
         maxvar = None
-        ax = meshTools.postpycess.plot_grid(self.x * scale, self.y * scale, colormap, plaincolor, varname, plotvar, minvar, maxvar)
+        ax = meshing.postpycess.plot_grid(self.x * scale, self.y * scale, colormap, plaincolor, varname, plotvar, minvar, maxvar)
         #plt.savefig(file_name, facecolor='w', edgecolor='w',
         #orientation='landscape')
         plt.show()

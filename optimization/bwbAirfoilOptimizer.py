@@ -36,9 +36,9 @@ print('sweep compensated mach number: ' + str(MACH_SWEEP_COMPENSATED))
 
 MACH_NR = MACH_SWEEP_COMPENSATED
 REF_LENGTH = 40.  # cd, cl no effect I guess
-REF_AREA = 40.  # cd, cl get smaller
+REF_AREA = REF_LENGTH  # cd, cl get smaller
 
-SCALE = 40.  # cd, cl get bigger
+SCALE = REF_LENGTH  # cd, cl get bigger
 
 
 speedOfSound = 307.828 # for altitude 10363 m
@@ -156,6 +156,7 @@ class AirfoilCFD(ExplicitComponent):
             #self.air.set_coordinates(top, buttom)
             cfd.set_airfoul_coords(top, buttom)
 
+            cfd.c2d.reynoldsNum = REYNOLD
             cfd.construct2d_generate_mesh(scale=SCALE, plot=False)
             cfd.su2_fix_mesh()
             cfd.su2_solve(config)
