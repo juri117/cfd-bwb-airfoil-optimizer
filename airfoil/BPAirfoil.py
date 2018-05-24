@@ -292,13 +292,13 @@ if __name__ == '__main__':
     ###compare arifoils
 
     bp1 = BPAirfoil()
-    bp1.read_parameters_from_file('dataIn/airfoil.txt')
+    bp1.read_parameters_from_file('../dataIn/airfoil.txt')
     bp1.generate_airfoil(500, show_plot=False)
     plt1, = plt.plot(bp1.topCoords[:, 0], bp1.topCoords[:, 1], '-b', label='airfoil 1')
     plt.plot(bp1.buttomCoords[:, 0], bp1.buttomCoords[:, 1], '-b', label='airfoil 1')
 
     bp2 = BPAirfoil()
-    bp2.read_parameters_from_file('dataOut/airfoil.txt')
+    bp2.read_parameters_from_file('../dataOut/airfoil.txt')
     bp2.generate_airfoil(500, show_plot=False)
     plt2, = plt.plot(bp2.topCoords[:, 0], bp2.topCoords[:, 1], '-g', label='airfoil 2')
     plt.plot(bp2.buttomCoords[:, 0], bp2.buttomCoords[:, 1], '-g', label='airfoil 2')
