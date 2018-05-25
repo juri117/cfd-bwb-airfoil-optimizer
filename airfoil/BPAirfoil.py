@@ -52,7 +52,7 @@ class BPAirfoil:
         if not (0 < self.b_8 < min(self.y_t, math.sqrt(-2 * self.r_le * self.x_t / 3))):
             print("Parameter b_8 out of bounds!")
             self.valid = False
-            return False
+            #return False
 
         # bezier points
         # thickness leading edge
@@ -299,6 +299,7 @@ if __name__ == '__main__':
 
     bp2 = BPAirfoil()
     bp2.read_parameters_from_file('../dataOut/airfoil.txt')
+    bp2.y_t -= 0.03
     bp2.generate_airfoil(500, show_plot=False)
     plt2, = plt.plot(bp2.topCoords[:, 0], bp2.topCoords[:, 1], '-g', label='airfoil 2')
     plt.plot(bp2.buttomCoords[:, 0], bp2.buttomCoords[:, 1], '-g', label='airfoil 2')

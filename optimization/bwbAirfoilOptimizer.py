@@ -275,7 +275,7 @@ class CabinFitting(ExplicitComponent):
         yMaxTop = min(self.air.get_top_y(xFront), self.air.get_top_y(xBack))
         height = yMaxTop - yMinButtom
         iterCounter = 0
-        while(abs(height - cabinHeigth) > 0.0001):
+        while(abs(height - cabinHeigth) > 1e-6):
             self.bzFoil.y_t += cabinHeigth - height
             top, buttom = self.bzFoil.get_cooridnates_top_buttom(500)
             self.air.set_coordinates(top, buttom)
@@ -285,8 +285,10 @@ class CabinFitting(ExplicitComponent):
             height = yMaxTop - yMinButtom
             iterCounter += 1
         if not self.bzFoil.valid:
-            # this should never happen because the AirfoilCFD catches these...
-            raise AnalysisError('CabinFitting: invalid BPAirfoil')
+            print('ERROR: CabinFitting, invalid BPAirfoil')
+            print('But we let AirfoilCFD handle this')
+            self.bzFoil.save_parameters_to_file(WORKING_DIR + '/bz_error_' + datetime.now().strftime('%Y-%m-%d_%H_%M_%S') + '.txt')
+            #raise AnalysisError('CabinFitting: invalid BPAirfoil')
 
         #yMinButtom = max(self.air.get_buttom_y(xFront), self.air.get_buttom_y(xBack))
         #yMaxTop = min(self.air.get_top_y(xFront), self.air.get_top_y(xBack))

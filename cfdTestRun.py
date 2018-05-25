@@ -24,8 +24,11 @@ config['FREESTREAM_TEMPERATURE'] = str(220.79)  # for altitude 10363 m
 # config['GAS_CONSTANT'] = str(287.87)
 config['EXT_ITER'] = str(9999)
 config['OUTPUT_FORMAT'] = 'PARAVIEW'
-#config['MG_DAMP_RESTRICTION'] = str(1.)
-#config['MG_DAMP_PROLONGATION'] = str(1.)
+config['MG_DAMP_RESTRICTION'] = str(.7)
+config['MG_DAMP_PROLONGATION'] = str(.7)
+
+config['CFL_ADAPT'] = 'YES'
+config['CFL_ADAPT_PARAM'] = '( 1.5, 0.5, 1.0, 25.0 )'
 
 config['REF_LENGTH'] = str(REF_LENGTH)
 config['REF_AREA'] = str(REF_AREA)
