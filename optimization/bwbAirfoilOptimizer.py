@@ -62,6 +62,14 @@ config['FREESTREAM_TEMPERATURE'] = str(220.79) #for altitude 10363 m
 config['EXT_ITER'] = str(5000)
 config['OUTPUT_FORMAT'] = 'PARAVIEW'
 
+config['MGLEVEL'] = str(3)
+config['MGCYCLE'] = 'V_CYCLE'
+config['MG_DAMP_RESTRICTION'] = str(.55)
+config['MG_DAMP_PROLONGATION'] = str(.55)
+
+#config['CFL_ADAPT'] = 'YES'
+#config['CFL_ADAPT_PARAM'] = '( 1.5, 0.5, 1.0, 50.0 )'
+
 cabinLength = 0.55
 cabinHeigth = 0.14
 
