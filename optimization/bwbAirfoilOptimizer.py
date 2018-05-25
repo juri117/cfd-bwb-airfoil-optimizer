@@ -70,6 +70,11 @@ config['MG_DAMP_PROLONGATION'] = str(.55)
 #config['CFL_ADAPT'] = 'YES'
 #config['CFL_ADAPT_PARAM'] = '( 1.5, 0.5, 1.0, 50.0 )'
 
+config['TIME_DISCRE_FLOW'] = 'EULER_IMPLICIT'
+config['CONV_NUM_METHOD_FLOW'] = 'JST'
+config['RELAXATION_FACTOR_FLOW'] = str(1.)
+config['RELAXATION_FACTOR_TURB'] = str(1.)
+
 cabinLength = 0.55
 cabinHeigth = 0.14
 
