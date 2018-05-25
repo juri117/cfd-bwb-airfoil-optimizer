@@ -18,6 +18,7 @@ import numpy as np
 
 # mach range
 AOA = np.linspace(-2., 6., 9)
+AOA = [0.]
 # mach nr
 MACH_NUMBER = 0.85  # mach number cruise
 # compensate sweep deg
@@ -58,8 +59,8 @@ config['OUTPUT_FORMAT'] = 'PARAVIEW'
 
 config['MGLEVEL'] = str(3)
 config['MGCYCLE'] = 'V_CYCLE'
-config['MG_DAMP_RESTRICTION'] = str(.55)
-config['MG_DAMP_PROLONGATION'] = str(.55)
+config['MG_DAMP_RESTRICTION'] = str(.4)
+config['MG_DAMP_PROLONGATION'] = str(.4)
 
 #config['CFL_ADAPT'] = 'YES'
 #config['CFL_ADAPT_PARAM'] = '( 1.5, 0.5, 1.0, 50.0 )'
@@ -75,8 +76,6 @@ config['RELAXATION_FACTOR_TURB'] = str(1.)
 ##################################
 ### naca Test ca, cd over mach ###
 
-su2 = SU2(SU2_BIN_PATH, used_cores=SU2_USED_CORES, mpi_exec=OS_MPI_COMMAND)
-
 outputF = open(WORKING_DIR + '/' + 'aoaResult_' + datetime.now().strftime('%Y-%m-%d_%H_%M_%S') + '.csv', 'w')
 outputF.write('machNr,AOA,CL,CD,CM,E,Iterations,Time(min)\n')
 
@@ -90,13 +89,12 @@ for a in AOA:
 
     cfd = CFDrun(projectName, used_cores=SU2_USED_CORES)
 
-    cfd.load_airfoil_from_file(INPUT_DIR + '/vfw-va2.dat')
+    cfd.load_airfoil_from_file(INPUT_DIR + '/airfoil.dat')
     #cfd.load_airfoil_from_file(INPUT_DIR + '/vfw-va2.dat')
     cfd.c2d.pointsInNormalDir = 80
     cfd.c2d.pointNrAirfoilSurface = 200
     cfd.c2d.reynoldsNum = REYNOLD
     cfd.construct2d_generate_mesh(scale=SCALE, plot=False)
-    #cfd.construct2d_generate_mesh(scale=REF_LENGTH)
     #cfd.gmsh_generate_mesh(scale=REF_LENGTH)
     cfd.su2_fix_mesh()
 

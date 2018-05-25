@@ -163,7 +163,6 @@ class AirfoilCFD(ExplicitComponent):
             #self.air.set_coordinates(top, buttom)
             cfd.set_airfoul_coords(top, buttom)
 
-            #cfd.c2d.reynoldsNum = REYNOLD
             cfd.c2d.pointsInNormalDir = 80
             cfd.c2d.pointNrAirfoilSurface = 200
             cfd.c2d.reynoldsNum = REYNOLD
