@@ -7,7 +7,7 @@ GMSH_EXE_PATH = 'bin/gmsh/gmsh.exe'
 SU2_BIN_PATH = 'bin/su2-windows-latest/ExecParallel/bin/'
 OS_MPI_COMMAND = 'mpiexec'
 CONSTRUCT2D_EXE_PATH = 'bin/construct2d/construct2d.exe'
-SU2_USED_CORES = 4
+SU2_USED_CORES = 6
 WORKING_DIR = 'dataOut/'
 INPUT_DIR = 'dataIn/'
 

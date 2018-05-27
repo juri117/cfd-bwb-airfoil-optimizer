@@ -46,13 +46,15 @@ class CFDrun:
         self.gmsh.generate_geo_file(self.foilCoord, 'airfoilMesh.geo', 1000, working_dir=self.projectDir, scale=scale)
         self.gmsh.run_2d_geo_file('airfoilMesh.geo', 'airfoilMesh.su2', working_dir=self.projectDir)
 
-    def construct2d_generate_mesh(self, scale=1., plot=False):
+    def construct2d_generate_mesh(self, scale=1., plot=False, wake_extension=0):
         print('start meshing with construct2d...')
         self.airfoil.write_to_dat('airfoil.dat', working_dir=self.projectDir)
 
         self.c2d.run_mesh_generatoin('airfoil.dat', working_dir=self.projectDir)
         #p2_to_su2_ogrid(self.projectDir + '/' + 'airfoil.p3d')
         c2dParser = Construct2dParser(self.projectDir + '/' + 'airfoil.p3d')
+        if wake_extension > 0:
+            c2dParser.extend_wake(wake_extension)
         c2dParser.p3d_to_su2_cgrid(self.projectDir + '/' + 'airfoilMesh.su2', scale=scale)
         if plot:
             print('saving mesh plot...')

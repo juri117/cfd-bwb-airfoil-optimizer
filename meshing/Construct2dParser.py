@@ -54,12 +54,12 @@ class Construct2dParser:
         offset = self.x[-1]
         delta = self.x[-1] - self.x[-2]
         for i in range(0, column_count):
-            xAdd = np.reshape((offset + (delta * (i+1))), (1, 100))
+            xAdd = np.reshape((offset + (delta * (i+1))), (1, self.mNode))
             self.x = np.append(self.x, xAdd, axis=0)
             self.x = np.append(xAdd, self.x, axis=0)
-            yAdd = np.reshape(self.y[-1], (1,100))
+            yAdd = np.reshape(self.y[-1], (1,self.mNode))
             self.y = np.append(self.y, yAdd, axis=0)
-            yAdd = np.reshape(self.y[0], (1, 100))
+            yAdd = np.reshape(self.y[0], (1, self.mNode))
             self.y = np.append(yAdd, self.y, axis=0)
             self.nNode += 2
         self._create_point_list()

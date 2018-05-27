@@ -59,13 +59,13 @@ config['FREESTREAM_TEMPERATURE'] = str(220.79) #for altitude 10363 m
 #config['GAS_CONSTANT'] = str(287.87)
 #config['REF_LENGTH'] = str(1.0)
 #config['REF_AREA'] = str(1.0)
-config['EXT_ITER'] = str(5000)
+config['EXT_ITER'] = str(9999)
 config['OUTPUT_FORMAT'] = 'PARAVIEW'
 
 config['MGLEVEL'] = str(3)
 config['MGCYCLE'] = 'V_CYCLE'
-config['MG_DAMP_RESTRICTION'] = str(.55)
-config['MG_DAMP_PROLONGATION'] = str(.55)
+config['MG_DAMP_RESTRICTION'] = str(.45)
+config['MG_DAMP_PROLONGATION'] = str(.45)
 
 #config['CFL_ADAPT'] = 'YES'
 #config['CFL_ADAPT_PARAM'] = '( 1.5, 0.5, 1.0, 50.0 )'
@@ -232,7 +232,7 @@ class CabinFitting(ExplicitComponent):
         self.add_input('beta_te', val=0.1, desc='thickness angle trailing edge')
         #self.add_input('dz_te', val=0., desc='thickness trailing edge')
         self.add_input('x_t', val=0.3, desc='dickenruecklage')
-        #self.add_input('y_t', val=0.1, desc='max thickness')
+        self.add_input('y_t', val=0.1, desc='max thickness')
 
         self.add_input('gamma_le', val=0.5, desc='camber angle leading edge')
         self.add_input('x_c', val=0.5, desc='woelbungsruecklage')
@@ -253,7 +253,7 @@ class CabinFitting(ExplicitComponent):
 
         ### OUTPUTS
         #self.add_output('height', val=0.0)
-        self.add_output('y_t', val=.1)
+        self.add_output('cabin_height', val=.1)
 
         self.declare_partials('*', '*', method='fd')
         self.executionCounter = 0
@@ -286,6 +286,7 @@ class CabinFitting(ExplicitComponent):
         yMinButtom = max(self.air.get_buttom_y(xFront), self.air.get_buttom_y(xBack))
         yMaxTop = min(self.air.get_top_y(xFront), self.air.get_top_y(xBack))
         height = yMaxTop - yMinButtom
+        """
         iterCounter = 0
         while(abs(height - cabinHeigth) > 1e-6):
             self.bzFoil.y_t += cabinHeigth - height
@@ -296,20 +297,23 @@ class CabinFitting(ExplicitComponent):
             yMaxTop = min(self.air.get_top_y(xFront), self.air.get_top_y(xBack))
             height = yMaxTop - yMinButtom
             iterCounter += 1
+        """
         if not self.bzFoil.valid:
             print('ERROR: CabinFitting, invalid BPAirfoil')
             print('But we let AirfoilCFD handle this')
             self.bzFoil.save_parameters_to_file(WORKING_DIR + '/bz_error_' + datetime.now().strftime('%Y-%m-%d_%H_%M_%S') + '.txt')
             #raise AnalysisError('CabinFitting: invalid BPAirfoil')
-
-        #yMinButtom = max(self.air.get_buttom_y(xFront), self.air.get_buttom_y(xBack))
-        #yMaxTop = min(self.air.get_top_y(xFront), self.air.get_top_y(xBack))
-        #outputs['height'] = yMaxTop - yMinButtom
-        print('cabin fitting needed ' + str(iterCounter) + ' iterations')
-        print('cabinHeight= ' + str(height))
-        outputs['y_t'] = self.bzFoil.y_t
-        print('new y_t= ' + str(outputs['y_t']))
-        self.executionCounter += 1
+            #workaround to tell openMDAO that this is bad
+            outputs['cabin_height'] = 0.
+        else:
+            #yMinButtom = max(self.air.get_buttom_y(xFront), self.air.get_buttom_y(xBack))
+            #yMaxTop = min(self.air.get_top_y(xFront), self.air.get_top_y(xBack))
+            #outputs['height'] = yMaxTop - yMinButtom
+            #print('cabin fitting needed ' + str(iterCounter) + ' iterations')
+            print('cabinHeight= ' + str(height))
+            outputs['cabin_height'] = height
+            print('new cabin_height= ' + str(outputs['cabin_height']))
+            self.executionCounter += 1
 
 
 def write_to_log(outStr):
@@ -341,7 +345,7 @@ def runOpenMdao():
     indeps.add_output('beta_te', bp.beta_te)
     #indeps.add_output('dz_te', bp.dz_te) # we want a sharp trailing edge
     indeps.add_output('x_t', bp.x_t)
-    #indeps.add_output('y_t', bp.y_t) # this is adapted by cabinFitter
+    indeps.add_output('y_t', bp.y_t)
 
     indeps.add_output('gamma_le', bp.gamma_le)
     indeps.add_output('x_c', bp.x_c)
@@ -366,8 +370,7 @@ def runOpenMdao():
     prob.model.connect('beta_te', ['airfoil_cfd.beta_te', 'cabin_fitter.beta_te'])
     #prob.model.connect('dz_te', ['airfoil_cfd.dz_te', 'cabin_fitter.dz_te'])
     prob.model.connect('x_t', ['airfoil_cfd.x_t', 'cabin_fitter.x_t'])
-
-    prob.model.connect('cabin_fitter.y_t', 'airfoil_cfd.y_t')
+    prob.model.connect('y_t', ['airfoil_cfd.y_t', 'cabin_fitter.y_t'])
 
     prob.model.connect('gamma_le', ['airfoil_cfd.gamma_le', 'cabin_fitter.gamma_le'])
     prob.model.connect('x_c', ['airfoil_cfd.x_c', 'cabin_fitter.x_c'])
@@ -424,6 +427,7 @@ def runOpenMdao():
 
     prob.model.add_objective('airfoil_cfd.c_d', scaler=1)
 
+    prob.model.add_constraint('cabin_fitter.cabin_height', lower=cabinHeigth * 0.99, upper=cabinHeigth*1.05)
     prob.model.add_constraint('airfoil_cfd.c_l', lower=0.145, upper=.155)
     prob.model.add_constraint('airfoil_cfd.c_m', lower=-0.05, upper=99.)
 
