@@ -131,6 +131,7 @@ outputF.close()
 print('file exportet to: ' + filePath)
 
 print('export geometry to txt-file')
+bzCoords = bp.generate_airfoil(500, show_plot=False)
 filePath = WORKING_DIR + '/' + 'centerAirfoil.txt'
 outputF = open(filePath, 'w')
 for i in range(1, len(bzCoords)):

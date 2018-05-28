@@ -112,6 +112,7 @@ class AirfoilCFD(ExplicitComponent):
         # just for plotin
         self.add_input('offsetFront', val=0.1, desc='...')
         self.add_input('angle', val=.0, desc='...')
+        self.add_input('cabin_height', val=.0, desc='...')
 
         ### OUTPUTS
         self.add_output('c_d', val=.2)
@@ -193,6 +194,7 @@ class AirfoilCFD(ExplicitComponent):
                          + str(outputs['c_m']) + ','
                          + str(results['CL/CD']) + ','
                          + str(results['Iteration']) + ','
+                         + str(inputs['cabin_height']) + ','
                          + str(inputs['offsetFront']) + ','
                          + str(inputs['angle']) + ','
                          + str(inputs['r_le']) + ','
@@ -313,7 +315,7 @@ class CabinFitting(ExplicitComponent):
             print('cabinHeight= ' + str(height))
             outputs['cabin_height'] = height
             print('new cabin_height= ' + str(outputs['cabin_height']))
-            self.executionCounter += 1
+        self.executionCounter += 1
 
 
 def write_to_log(outStr):
@@ -365,6 +367,7 @@ def runOpenMdao():
     #prob.model.connect('length', 'cabin_fitter.length')
     prob.model.connect('offsetFront', ['cabin_fitter.offsetFront', 'airfoil_cfd.offsetFront'])
     prob.model.connect('angle', ['cabin_fitter.angle', 'airfoil_cfd.angle'])
+    prob.model.connect('cabin_fitter.cabin_height', 'airfoil_cfd.cabin_height')
 
     prob.model.connect('r_le', ['airfoil_cfd.r_le', 'cabin_fitter.r_le'])
     prob.model.connect('beta_te', ['airfoil_cfd.beta_te', 'cabin_fitter.beta_te'])
@@ -431,7 +434,7 @@ def runOpenMdao():
     prob.model.add_constraint('airfoil_cfd.c_l', lower=0.145, upper=.155)
     prob.model.add_constraint('airfoil_cfd.c_m', lower=-0.05, upper=99.)
 
-    write_to_log('iterations,time,c_l,c_d,c_m,CL/CD,cfdIterations,offsetFront,angle,r_le,beta_te,x_t,y_t,gamma_le,x_c,y_c,alpha_te,z_te,b_8,b_15,b_0,b_17,b_2]))')
+    write_to_log('iterations,time,c_l,c_d,c_m,CL/CD,cfdIterations,cabin_height,offsetFront,angle,r_le,beta_te,x_t,y_t,gamma_le,x_c,y_c,alpha_te,z_te,b_8,b_15,b_0,b_17,b_2]))')
 
     prob.setup()
     prob.set_solver_print(level=0)
