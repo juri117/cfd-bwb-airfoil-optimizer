@@ -282,7 +282,7 @@ class CabinFitting(ExplicitComponent):
         xBack = xFront + cabinLength #inputs['length']
         angle = inputs['angle']
 
-        top, buttom = self.bzFoil.get_cooridnates_top_buttom(500, show_plot=True)
+        top, buttom = self.bzFoil.get_cooridnates_top_buttom(500, show_plot=False)
         self.air.set_coordinates(top, buttom)
         self.air.rotate(angle)
         yMinButtom = max(self.air.get_buttom_y(xFront), self.air.get_buttom_y(xBack))
