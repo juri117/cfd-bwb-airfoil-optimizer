@@ -151,7 +151,7 @@ class AirfoilCFD(ExplicitComponent):
                                                      param_dump_file=WORKING_DIR+'/'+projectName+'/airfoil.txt')
         self.bzFoil.plot_airfoil_with_cabin(inputs['offsetFront'],
                                             cabinLength,
-                                            cabinHeigth,
+                                            inputs['cabin_height'],
                                             inputs['angle'],
                                             show_plot=False,
                                             save_plot_path=WORKING_DIR+'/'+projectName+'/airfoil_cabin.png')
@@ -255,7 +255,7 @@ class CabinFitting(ExplicitComponent):
 
         ### OUTPUTS
         #self.add_output('height', val=0.0)
-        self.add_output('cabin_height', val=.1)
+        self.add_output('cabin_height', val=cabinHeigth)
 
         self.declare_partials('*', '*', method='fd')
         self.executionCounter = 0

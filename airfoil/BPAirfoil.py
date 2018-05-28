@@ -147,17 +147,17 @@ class BPAirfoil:
         air = Airfoil(None)
         air.set_coordinates(self.topCoords, self.buttomCoords)
         air.rotate(angle)
-        px_ol = offsetFront
-        py_ol = air.get_top_y(px_ol)
-        (px_ol, py_ol) = self.rotatePoint((0, 0), (px_ol, py_ol), angle)
         px_ul = offsetFront
         py_ul = air.get_buttom_y(px_ul)
+        px_ol = offsetFront
+        py_ol = py_ul + height
+        (px_ol, py_ol) = self.rotatePoint((0, 0), (px_ol, py_ol), angle)
         (px_ul, py_ul) = self.rotatePoint((0, 0), (px_ul, py_ul), angle)
-        px_or = offsetFront + length
-        py_or = air.get_top_y(px_or)
-        (px_or, py_or) = self.rotatePoint((0, 0), (px_or, py_or), angle)
         px_ur = offsetFront + length
         py_ur = air.get_buttom_y(px_ur)
+        px_or = offsetFront + length
+        py_or = py_ur + height
+        (px_or, py_or) = self.rotatePoint((0, 0), (px_or, py_or), angle)
         (px_ur, py_ur) = air.rotatePoint((0, 0), (px_ur, py_ur), angle)
 
         pltTop, = plt.plot(self.topCoords[:,0], self.topCoords[:,1], '-b', label='airfoil')
