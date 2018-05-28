@@ -59,7 +59,7 @@ config['FREESTREAM_TEMPERATURE'] = str(220.79) #for altitude 10363 m
 #config['GAS_CONSTANT'] = str(287.87)
 #config['REF_LENGTH'] = str(1.0)
 #config['REF_AREA'] = str(1.0)
-config['EXT_ITER'] = str(9999)
+config['EXT_ITER'] = str(100)
 config['OUTPUT_FORMAT'] = 'PARAVIEW'
 
 config['MGLEVEL'] = str(3)
@@ -265,7 +265,7 @@ class CabinFitting(ExplicitComponent):
         self.bzFoil.beta_te = inputs['beta_te']
         #self.bzFoil.dz_te = inputs['dz_te']
         self.bzFoil.x_t = inputs['x_t']
-        #self.bzFoil.y_t = 0.1 #inputs['y_t']
+        self.bzFoil.y_t = inputs['y_t']
 
         self.bzFoil.gamma_le = inputs['gamma_le']
         self.bzFoil.x_c = inputs['x_c']
@@ -282,7 +282,7 @@ class CabinFitting(ExplicitComponent):
         xBack = xFront + cabinLength #inputs['length']
         angle = inputs['angle']
 
-        top, buttom = self.bzFoil.get_cooridnates_top_buttom(500)
+        top, buttom = self.bzFoil.get_cooridnates_top_buttom(500, show_plot=True)
         self.air.set_coordinates(top, buttom)
         self.air.rotate(angle)
         yMinButtom = max(self.air.get_buttom_y(xFront), self.air.get_buttom_y(xBack))

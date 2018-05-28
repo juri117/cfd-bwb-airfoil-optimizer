@@ -251,8 +251,8 @@ class BPAirfoil:
                     print('ERROR: parsing BZAirfoil parameter from file: ' + file_path)
         inputF.close()
 
-    def get_cooridnates_top_buttom(self, pointCount):
-        self.generate_airfoil(pointCount, show_plot=False)
+    def get_cooridnates_top_buttom(self, pointCount, show_plot=False):
+        self.generate_airfoil(pointCount, show_plot=show_plot)
         return self.topCoords, self.buttomCoords
 
     # calculations
