@@ -5,7 +5,7 @@ __status__ = "Development"
 from constants import *
 import traceback
 
-import optimization.bwbAirfoilOptimizer as opti
+import optimization.bwbAirfoilOptimizerV2 as opti
 
 try:
     opti.cabinLength = 0.55

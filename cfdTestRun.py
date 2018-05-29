@@ -56,8 +56,8 @@ cfd = CFDrun(projectName, used_cores=SU2_USED_CORES)
 #cfd.load_airfoil_from_file(INPUT_DIR + '/naca641-212.csv')
 cfd.load_airfoil_from_file(INPUT_DIR + '/bzTest.dat')
 
-cfd.c2d.pointsInNormalDir = 150
-cfd.c2d.pointNrAirfoilSurface = 300
+cfd.c2d.pointsInNormalDir = 80
+cfd.c2d.pointNrAirfoilSurface = 200
 #cfd.c2d.farfieldRadius = 50.
 cfd.c2d.reynoldsNum = REYNOLD
 #cfd.c2d.farfieldRadius = 50.

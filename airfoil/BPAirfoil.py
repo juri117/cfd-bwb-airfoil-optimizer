@@ -52,7 +52,7 @@ class BPAirfoil:
         if not (0 < self.b_8 < min(self.y_t, math.sqrt(-2 * self.r_le * self.x_t / 3))):
             print("Parameter b_8 out of bounds!")
             self.valid = False
-            #return False
+            return False
 
         # bezier points
         # thickness leading edge

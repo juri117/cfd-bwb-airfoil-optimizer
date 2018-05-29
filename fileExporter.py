@@ -131,10 +131,13 @@ outputF.close()
 print('file exportet to: ' + filePath)
 
 print('export geometry to txt-file')
-bzCoords = bp.generate_airfoil(500, show_plot=False)
+top, but = bp.get_cooridnates_top_buttom(250, show_plot=False)
+bzCoords = np.concatenate((top[::-1], but[::-1][1:]), axis=0)
 filePath = WORKING_DIR + '/' + 'centerAirfoil.txt'
 outputF = open(filePath, 'w')
-for i in range(1, len(bzCoords)):
+for i in range(0, len(bzCoords)):
     outputF.write('{:.7f}\t{:.7f}\n'.format(bzCoords[i][0], bzCoords[i][1]))
+if not(bzCoords[-1][0] == bzCoords[0][0] and bzCoords[-1][1] == bzCoords[0][1]):
+    outputF.write('{:.7f}\t{:.7f}\n'.format(bzCoords[0][0], bzCoords[0][1]))
 outputF.close()
 print('file exportet to: ' + filePath)
