@@ -52,11 +52,11 @@ outputF.write('% author: Juri Bieler\n')
 outputF.write('%-------------------------------------------------------------------------%\n')
 outputF.write('% airfoil coordinates 2D (1000 points)\n')
 outputF.write('aircraft.centerbody.airfoilCoords = ...\n')
-bzCoords = bp.generate_airfoil(1000, show_plot=False)
+bzCoords = bp.generate_airfoil(250, show_plot=False)
 outputF.write('\t[{:.7f} {:.7f};\n'.format(bzCoords[0][0], bzCoords[0][1]))
 for i in range(1, len(bzCoords)-1):
     outputF.write('\t{:.7f} {:.7f};\n'.format(bzCoords[i][0], bzCoords[i][1]))
-outputF.write('\t{:.7f} {:.7f};]\n'.format(bzCoords[-1][0], bzCoords[-1][1]))
+outputF.write('\t{:.7f} {:.7f};];\n'.format(bzCoords[-1][0], bzCoords[-1][1]))
 outputF.write('%-------------------------------------------------------------------------%\n')
 outputF.write('\n')
 
@@ -124,7 +124,7 @@ plt.show()
 outputF.write('\t[{:.7f} {:.7f} {:.7f} {:.7f};\n'.format(polar[0][1], polar[0][2], polar[0][3], polar[0][4]))
 for i in range(1, len(polar)-1):
     outputF.write('\t{:.7f} {:.7f} {:.7f} {:.7f};\n'.format(polar[i][1], polar[i][2], polar[i][3], polar[i][4]))
-outputF.write('\t{:.7f} {:.7f} {:.7f} {:.7f};]\n'.format(polar[-1][1], polar[-1][2], polar[-1][3], polar[-1][4]))
+outputF.write('\t{:.7f} {:.7f} {:.7f} {:.7f};];\n'.format(polar[-1][1], polar[-1][2], polar[-1][3], polar[-1][4]))
 
 outputF.write('%-------------------------------------------------------------------------%\n')
 outputF.close()
