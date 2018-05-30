@@ -59,7 +59,7 @@ config['FREESTREAM_TEMPERATURE'] = str(220.79) #for altitude 10363 m
 #config['GAS_CONSTANT'] = str(287.87)
 #config['REF_LENGTH'] = str(1.0)
 #config['REF_AREA'] = str(1.0)
-config['EXT_ITER'] = str(3)
+config['EXT_ITER'] = str(5000)
 config['OUTPUT_FORMAT'] = 'PARAVIEW'
 
 config['MGLEVEL'] = str(3)
@@ -219,7 +219,7 @@ class AirfoilCFD(ExplicitComponent):
                 print('ERROR: AirfoilCFD, c_d is out of range (cfd failed)')
                 error = True
 
-            outputs['c_d'] = self.executionCounter #results['CD']
+            outputs['c_d'] = results['CD']
             outputs['c_l'] = results['CL']
             outputs['c_m'] = results['CMz']
             print('c_l= ' + str(outputs['c_l']))
@@ -259,95 +259,6 @@ class AirfoilCFD(ExplicitComponent):
             outputs['c_m'] = 0.
         self.executionCounter += 1
 
-"""
-class CabinFitting(ExplicitComponent):
-
-    def setup(self):
-        ######################
-        ### needed Objects ###
-        self.bzFoil = BPAirfoil()
-        self.air = Airfoil(None)
-
-        #####################
-        ### openMDAO init ###
-        ### INPUTS
-        self.add_input('r_le', val=-0.05, desc='nose radius')
-        self.add_input('beta_te', val=0.1, desc='thickness angle trailing edge')
-        #self.add_input('dz_te', val=0., desc='thickness trailing edge')
-        self.add_input('x_t', val=0.3, desc='dickenruecklage')
-        self.add_input('y_t', val=0.1, desc='max thickness')
-
-        self.add_input('gamma_le', val=0.5, desc='camber angle leading edge')
-        self.add_input('x_c', val=0.5, desc='woelbungsruecklage')
-        self.add_input('y_c', val=0.1, desc='max camber')
-        self.add_input('alpha_te', val=-0.1, desc='camber angle trailing edge')
-        self.add_input('z_te', val=0., desc='camber trailing edge')
-
-        # bezier parameters
-        self.add_input('b_8', val=0.05, desc='')
-        self.add_input('b_15', val=0.75, desc='')
-        self.add_input('b_0', val=0.1, desc='')
-        self.add_input('b_2', val=0.25, desc='')
-        self.add_input('b_17', val=0.9, desc='')
-
-        self.add_input('offsetFront', val=0.1, desc='...')
-        #self.add_input('length', val=.5, desc='...')
-        self.add_input('angle', val=.0, desc='...')
-
-        ### OUTPUTS
-        #self.add_output('height', val=0.0)
-        self.add_output('cabin_height', val=cabinHeigth)
-
-        self.declare_partials('*', '*', method='fd')
-        self.executionCounter = 0
-
-    def compute(self, inputs, outputs):
-        self.bzFoil.r_le = inputs['r_le']
-        self.bzFoil.beta_te = inputs['beta_te']
-        #self.bzFoil.dz_te = inputs['dz_te']
-        self.bzFoil.x_t = inputs['x_t']
-        self.bzFoil.y_t = inputs['y_t']
-
-        self.bzFoil.gamma_le = inputs['gamma_le']
-        self.bzFoil.x_c = inputs['x_c']
-        self.bzFoil.y_c = inputs['y_c']
-        self.bzFoil.alpha_te = inputs['alpha_te']
-        self.bzFoil.z_te = inputs['z_te']
-
-        self.bzFoil.b_8 = inputs['b_8']
-        self.bzFoil.b_15 = inputs['b_15']
-        self.bzFoil.b_0 = inputs['b_0']
-        self.bzFoil.b_2 = inputs['b_2']
-        self.bzFoil.b_17 = inputs['b_17']
-        xFront = inputs['offsetFront']
-        xBack = xFront + cabinLength #inputs['length']
-        angle = inputs['angle']
-
-        top, buttom = self.bzFoil.get_cooridnates_top_buttom(500, show_plot=False)
-        self.air.set_coordinates(top, buttom)
-        self.air.rotate(angle)
-        yMinButtom = max(self.air.get_buttom_y(xFront), self.air.get_buttom_y(xBack))
-        yMaxTop = min(self.air.get_top_y(xFront), self.air.get_top_y(xBack))
-        height = yMaxTop - yMinButtom
-
-        if not self.bzFoil.valid:
-            print('ERROR: CabinFitting, invalid BPAirfoil')
-            print('But we let AirfoilCFD handle this')
-            self.bzFoil.save_parameters_to_file(WORKING_DIR + '/bz_error_' + datetime.now().strftime('%Y-%m-%d_%H_%M_%S') + '.txt')
-            #raise AnalysisError('CabinFitting: invalid BPAirfoil')
-            #workaround to tell openMDAO that this is bad
-            outputs['cabin_height'] = 0.
-        else:
-            #yMinButtom = max(self.air.get_buttom_y(xFront), self.air.get_buttom_y(xBack))
-            #yMaxTop = min(self.air.get_top_y(xFront), self.air.get_top_y(xBack))
-            #outputs['height'] = yMaxTop - yMinButtom
-            #print('cabin fitting needed ' + str(iterCounter) + ' iterations')
-            print('cabinHeight= ' + str(height))
-            outputs['cabin_height'] = height
-            print('new cabin_height= ' + str(outputs['cabin_height']))
-        self.executionCounter += 1
-
-"""
 
 def write_to_log(outStr):
     outStr = outStr.replace('[', '')
