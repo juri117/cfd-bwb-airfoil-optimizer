@@ -95,7 +95,7 @@ class AirfoilCFD(ExplicitComponent):
         self.add_input('beta_te', val=0.1, desc='thickness angle trailing edge')
         #self.add_input('dz_te', val=0., desc='thickness trailing edge')
         self.add_input('x_t', val=0.3, desc='dickenruecklage')
-        self.add_input('y_t', val=0.1, desc='max thickness')
+        #self.add_input('y_t', val=0.1, desc='max thickness')
 
         self.add_input('gamma_le', val=0.5, desc='camber angle leading edge')
         self.add_input('x_c', val=0.5, desc='woelbungsruecklage')
@@ -119,11 +119,26 @@ class AirfoilCFD(ExplicitComponent):
         self.add_output('c_d', val=.2)
         self.add_output('c_l', val=.2)
         self.add_output('c_m', val=.2)
+        self.add_output('y_t', val=0.1, desc='max thickness')
 
         self.add_output('cabin_height', val=cabinHeigth)
 
         self.declare_partials('*', '*', method='fd')
         self.executionCounter = 0
+
+
+    def fit_cabin(self, xFront, angle):
+        top, buttom = self.bzFoil.get_cooridnates_top_buttom(500)
+        if self.bzFoil.valid == False:
+            return False
+        xBack = xFront + cabinLength  # inputs['length']
+        self.air.set_coordinates(top, buttom)
+        self.air.rotate(angle)
+        yMinButtom = max(self.air.get_buttom_y(xFront), self.air.get_buttom_y(xBack))
+        yMaxTop = min(self.air.get_top_y(xFront), self.air.get_top_y(xBack))
+        height = yMaxTop - yMinButtom
+        return height
+        #outputs['cabin_height'] = height
 
     def compute(self, inputs, outputs):
         error = False
@@ -131,7 +146,7 @@ class AirfoilCFD(ExplicitComponent):
         self.bzFoil.beta_te = inputs['beta_te']
         #self.bzFoil.dz_te = inputs['dz_te']
         self.bzFoil.x_t = inputs['x_t']
-        self.bzFoil.y_t = inputs['y_t']
+        #self.bzFoil.y_t = inputs['y_t']
 
         self.bzFoil.gamma_le = inputs['gamma_le']
         self.bzFoil.x_c = inputs['x_c']
@@ -153,27 +168,30 @@ class AirfoilCFD(ExplicitComponent):
                                                      save_plot_path=WORKING_DIR+'/'+projectName+'/airfoil.png',
                                                      param_dump_file=WORKING_DIR+'/'+projectName+'/airfoil.txt')
 
+        # check how high the cabin can be
+        height = self.fit_cabin(inputs['offsetFront'], inputs['angle'])
+        if self.bzFoil.valid:
+            iterCounter = 0
+            while (abs(height - cabinHeigth) > 1e-6):
+                self.bzFoil.y_t += cabinHeigth - height
+                height = self.fit_cabin(inputs['offsetFront'], inputs['angle'])
+                if height == False:
+                    break
+                iterCounter += 1
+
+            outputs['cabin_height'] = height
+            outputs['y_t'] = self.bzFoil.y_t
+            print('new cabin_height= ' + str(outputs['cabin_height']))
+            print('needed iterations= ' + str(iterCounter))
+
+
         if not self.bzFoil.valid:
             #raise AnalysisError('AirfoilCFD: invalid BPAirfoil')
             print('ERROR: AirfoilCFD, invalid BPAirfoil')
+            self.bzFoil.save_parameters_to_file(
+                WORKING_DIR + '/bz_error_' + datetime.now().strftime('%Y-%m-%d_%H_%M_%S') + '.txt')
             error = True
         else:
-            top, buttom = self.bzFoil.get_cooridnates_top_buttom(500)
-
-
-
-
-            # check how high the cabin can be
-            xFront = inputs['offsetFront']
-            xBack = xFront + cabinLength  # inputs['length']
-            angle = inputs['angle']
-            self.air.set_coordinates(top, buttom)
-            self.air.rotate(angle)
-            yMinButtom = max(self.air.get_buttom_y(xFront), self.air.get_buttom_y(xBack))
-            yMaxTop = min(self.air.get_top_y(xFront), self.air.get_top_y(xBack))
-            height = yMaxTop - yMinButtom
-            outputs['cabin_height'] = height
-            print('new cabin_height= ' + str(outputs['cabin_height']))
 
             self.bzFoil.plot_airfoil_with_cabin(inputs['offsetFront'],
                                                 cabinLength,
@@ -183,7 +201,7 @@ class AirfoilCFD(ExplicitComponent):
                                                 save_plot_path=WORKING_DIR + '/' + projectName + '/airfoil_cabin.png')
 
             ### now we do cfd
-            #self.air.set_coordinates(top, buttom)
+            top, buttom = self.bzFoil.get_cooridnates_top_buttom(500)
             cfd.set_airfoul_coords(top, buttom)
 
             cfd.c2d.pointsInNormalDir = 80
@@ -201,7 +219,7 @@ class AirfoilCFD(ExplicitComponent):
                 print('ERROR: AirfoilCFD, c_d is out of range (cfd failed)')
                 error = True
 
-            outputs['c_d'] = results['CD']
+            outputs['c_d'] = self.executionCounter #results['CD']
             outputs['c_l'] = results['CL']
             outputs['c_m'] = results['CMz']
             print('c_l= ' + str(outputs['c_l']))
@@ -222,7 +240,7 @@ class AirfoilCFD(ExplicitComponent):
                          + str(inputs['r_le']) + ','
                          + str(inputs['beta_te']) + ','
                          + str(inputs['x_t']) + ','
-                         + str(inputs['y_t']) + ','
+                         + str(outputs['y_t']) + ','
                          + str(inputs['gamma_le']) + ','
                          + str(inputs['x_c']) + ','
                          + str(inputs['y_c']) + ','
@@ -360,7 +378,7 @@ def runOpenMdao():
     indeps.add_output('beta_te', bp.beta_te)
     #indeps.add_output('dz_te', bp.dz_te) # we want a sharp trailing edge
     indeps.add_output('x_t', bp.x_t)
-    indeps.add_output('y_t', bp.y_t)
+    #indeps.add_output('y_t', bp.y_t)
 
     indeps.add_output('gamma_le', bp.gamma_le)
     indeps.add_output('x_c', bp.x_c)
@@ -386,7 +404,7 @@ def runOpenMdao():
     prob.model.connect('beta_te', 'airfoil_cfd.beta_te')
     #prob.model.connect('dz_te', ['airfoil_cfd.dz_te', 'cabin_fitter.dz_te'])
     prob.model.connect('x_t', 'airfoil_cfd.x_t')
-    prob.model.connect('y_t', 'airfoil_cfd.y_t')
+    #prob.model.connect('y_t', 'airfoil_cfd.y_t')
 
     prob.model.connect('gamma_le', 'airfoil_cfd.gamma_le')
     prob.model.connect('x_c', 'airfoil_cfd.x_c')
@@ -424,7 +442,7 @@ def runOpenMdao():
     #ToDo: dz_te constant to 0, no thickness at trailing edge
     #prob.model.add_design_var('dz_te', lower=0., upper=0.)
     prob.model.add_design_var('x_t', lower=0.)#, lower=0.25, upper=0.5)
-    prob.model.add_design_var('y_t')#, lower=0.075, upper=0.09)
+    #prob.model.add_design_var('y_t')#, lower=0.075, upper=0.09)
 
     prob.model.add_design_var('gamma_le')#, lower=bp.gamma_le*lowerPro, upper=bp.gamma_le*upperPro)
     prob.model.add_design_var('x_c')#, lower=bp.x_c*lowerPro, upper=bp.x_c*upperPro)

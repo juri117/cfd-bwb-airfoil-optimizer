@@ -253,6 +253,8 @@ class BPAirfoil:
 
     def get_cooridnates_top_buttom(self, pointCount, show_plot=False):
         self.generate_airfoil(pointCount, show_plot=show_plot)
+        if not self.valid:
+            return [], []
         return self.topCoords, self.buttomCoords
 
     # calculations
@@ -286,8 +288,8 @@ class BPAirfoil:
 
 
 if __name__ == '__main__':
-    #bp = BPAirfoil()
-    #bp.generate_airfoil(500, show_plot=True)
+    bp = BPAirfoil()
+    bp.generate_airfoil(500, show_plot=True)
 
     ###compare arifoils
 

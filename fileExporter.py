@@ -76,19 +76,26 @@ angle = 0.
 offsetFront = 0.11
 length = 0.55
 air = Airfoil(INPUT_DIR+'/'+'airfoil.dat')
+air.rotate(angle)
 #air.rotate(angle)
-px_ol = offsetFront
-py_ol = air.get_top_y(px_ol)
-(px_ol, py_ol) = air.rotatePoint((0, 0), (px_ol, py_ol), angle)
 px_ul = offsetFront
-py_ul = air.get_buttom_y(px_ul)
-(px_ul, py_ul) = air.rotatePoint((0, 0), (px_ul, py_ul), angle)
-px_or = offsetFront + length
-py_or = air.get_top_y(px_or)
-(px_or, py_or) = air.rotatePoint((0, 0), (px_or, py_or), angle)
 px_ur = offsetFront + length
-py_ur = air.get_buttom_y(px_ur)
-(px_ur, py_ur) = air.rotatePoint((0, 0), (px_ur, py_ur), angle)
+py_ul = max(air.get_buttom_y(px_ul), air.get_buttom_y(px_ur))
+py_ur = py_ul
+px_ol = px_ul
+px_or = px_ur
+py_ol = min(air.get_top_y(px_ol), air.get_top_y(px_or))
+py_or = py_ol
+print('geometrical calculated height = ' + str(py_ol - py_ul))
+(px_ol, py_ol) = air.rotatePoint((0, 0), (px_ol, py_ol), -angle)
+(px_ul, py_ul) = air.rotatePoint((0, 0), (px_ul, py_ul), -angle)
+
+#py_ur = air.get_buttom_y(px_ur)
+#px_or = px_ur
+#py_or = py_ur + height
+(px_or, py_or) = air.rotatePoint((0, 0), (px_or, py_or), -angle)
+(px_ur, py_ur) = air.rotatePoint((0, 0), (px_ur, py_ur), -angle)
+air.rotate(0.)
 ax = air.plotAirfoil(showPlot=False)
 ax.plot([px_ol, px_ul, px_ur, px_or, px_ol], [py_ol, py_ul, py_ur, py_or, py_ol], 'rx-')
 plt.show()
@@ -99,7 +106,7 @@ outputF.write('aircraft.centerbody.py_or\t= {:.7f};\n'.format(py_or))
 outputF.write('aircraft.centerbody.px_ul\t= {:.7f};\n'.format(px_ul))
 outputF.write('aircraft.centerbody.py_ul\t= {:.7f};\n'.format(py_ul))
 outputF.write('aircraft.centerbody.px_ur\t= {:.7f};\n'.format(px_ur))
-outputF.write('aircraft.centerbody.py_ur\t= -{:.7f};\n'.format(py_ur))
+outputF.write('aircraft.centerbody.py_ur\t= {:.7f};\n'.format(py_ur))
 outputF.write('\n')
 outputF.write('aircraft.centerbody.tx_ol\t= {:.7f};\n'.format(px_ol))
 outputF.write('aircraft.centerbody.ty_ol\t= {:.7f};\n'.format(py_ol))
@@ -108,7 +115,7 @@ outputF.write('aircraft.centerbody.ty_or\t= {:.7f};\n'.format(py_or))
 outputF.write('aircraft.centerbody.tx_ul\t= {:.7f};\n'.format(px_ul))
 outputF.write('aircraft.centerbody.ty_ul\t= {:.7f};\n'.format(py_ul))
 outputF.write('aircraft.centerbody.tx_ur\t= {:.7f};\n'.format(px_ur))
-outputF.write('aircraft.centerbody.ty_ur\t= -{:.7f};\n'.format(py_ur))
+outputF.write('aircraft.centerbody.ty_ur\t= {:.7f};\n'.format(py_ur))
 outputF.write('%-------------------------------------------------------------------------%\n')
 outputF.write('\n')
 

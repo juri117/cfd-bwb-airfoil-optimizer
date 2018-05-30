@@ -43,6 +43,11 @@ class Airfoil:
                 if abs(airfoilData[topButSeperation][0] - airfoilData[topButSeperation+1][0]) >= 1:
                     topButSeperation += 1
                 self.airfoilButtom = airfoilData[topButSeperation:]
+                #fix if airfoil is wrong ordered
+                if np.mean(self.airfoilTop[:, 1]) < 0:
+                    tmp = self.airfoilTop.copy()
+                    self.airfoilTop = self.airfoilButtom.copy()
+                    self.airfoilButtom = tmp
             elif filename.split('.')[-1] == 'csv':
                 airfoilData = np.genfromtxt(filename, delimiter=',')
                 # in the used csv database they stored first the upper shell coorinates and then the bottum both
