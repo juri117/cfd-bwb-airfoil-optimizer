@@ -18,7 +18,7 @@ import numpy as np
 
 # mach range
 AOA = np.linspace(-2., 6., 9)
-AOA = [0.]
+#AOA = [0.]
 # mach nr
 MACH_NUMBER = 0.85  # mach number cruise
 # compensate sweep deg

@@ -54,9 +54,9 @@ outputF.write('% airfoil coordinates 2D (1000 points)\n')
 outputF.write('aircraft.centerbody.airfoilCoords = ...\n')
 bzCoords = bp.generate_airfoil(250, show_plot=False)
 outputF.write('\t[{:.7f} {:.7f};\n'.format(bzCoords[0][0], bzCoords[0][1]))
-for i in range(1, len(bzCoords)-1):
+for i in range(1, len(bzCoords)):
     outputF.write('\t{:.7f} {:.7f};\n'.format(bzCoords[i][0], bzCoords[i][1]))
-outputF.write('\t{:.7f} {:.7f};];\n'.format(bzCoords[-1][0], bzCoords[-1][1]))
+outputF.write('\t{:.7f} {:.7f};];\n'.format(bzCoords[0][0], bzCoords[0][1]))
 outputF.write('%-------------------------------------------------------------------------%\n')
 outputF.write('\n')
 
@@ -126,6 +126,17 @@ outputF.write('aircraft.centerbody.airfoilAeroData2D = ...\n')
 
 polar = np.genfromtxt(INPUT_DIR+'/'+'aoaResult.csv', delimiter=',', skip_header=1)
 plt.plot(polar[:,3], polar[:,2], 'b-')
+plt.suptitle('polar')
+plt.xlabel('cd')
+plt.ylabel('ca')
+plt.savefig(WORKING_DIR + '/' + 'polar_cl_cd.png')
+plt.show()
+
+plt.plot(polar[:,1], polar[:,2], 'b-')
+plt.suptitle('aoa-polar')
+plt.xlabel('aoa in deg')
+plt.ylabel('ca')
+plt.savefig(WORKING_DIR + '/' + 'polar_cl_aoa.png')
 plt.show()
 
 outputF.write('\t[{:.7f} {:.7f} {:.7f} {:.7f};\n'.format(polar[0][1], polar[0][2], polar[0][3], polar[0][4]))
