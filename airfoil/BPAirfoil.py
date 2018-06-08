@@ -144,6 +144,35 @@ class BPAirfoil:
         return np.vstack((np.array([x, yTop]).transpose(), np.array([x[::-1], yBut[::-1]]).transpose()))[:-1]
 
     def plot_airfoil_with_cabin(self, offsetFront, length, height, angle, show_plot=True, save_plot_path='', clear_plot=True):
+        """
+        air = Airfoil(None)
+        air.set_coordinates(self.topCoords, self.buttomCoords)
+        air.rotate(angle)
+        # air.rotate(angle)
+        px_ul = offsetFront
+        px_ur = offsetFront + length
+        py_ul = max(air.get_buttom_y(px_ul), air.get_buttom_y(px_ur))
+        py_ur = py_ul
+        px_ol = px_ul
+        px_or = px_ur
+        py_ol = min(air.get_top_y(px_ol), air.get_top_y(px_or))
+        py_or = py_ol
+        print('geometrical calculated height = ' + str(py_ol - py_ul))
+        (px_ol, py_ol) = air.rotatePoint((0, 0), (px_ol, py_ol), -angle)
+        (px_ul, py_ul) = air.rotatePoint((0, 0), (px_ul, py_ul), -angle)
+
+        # py_ur = air.get_buttom_y(px_ur)
+        # px_or = px_ur
+        # py_or = py_ur + height
+        (px_or, py_or) = air.rotatePoint((0, 0), (px_or, py_or), -angle)
+        (px_ur, py_ur) = air.rotatePoint((0, 0), (px_ur, py_ur), -angle)
+        air.rotate(0.)
+        ax = air.plotAirfoil(showPlot=False, showPoints=False)
+        ax.plot([px_ol, px_ul, px_ur, px_or, px_ol], [py_ol, py_ul, py_ur, py_or, py_ol], 'rx-')
+
+        return ax
+
+        """
         air = Airfoil(None)
         air.set_coordinates(self.topCoords, self.buttomCoords)
         air.rotate(angle)
@@ -288,24 +317,30 @@ class BPAirfoil:
 
 
 if __name__ == '__main__':
-    bp = BPAirfoil()
-    bp.generate_airfoil(500, show_plot=True)
+    #bp = BPAirfoil()
+    #bp.generate_airfoil(500, show_plot=True)
 
     ###compare arifoils
 
     bp1 = BPAirfoil()
     bp1.read_parameters_from_file('../dataIn/airfoil.txt')
     bp1.generate_airfoil(500, show_plot=False)
-    plt1, = plt.plot(bp1.topCoords[:, 0], bp1.topCoords[:, 1], '-b', label='airfoil 1')
-    plt.plot(bp1.buttomCoords[:, 0], bp1.buttomCoords[:, 1], '-b', label='airfoil 1')
+    #plt1, = plt.plot(bp1.topCoords[:, 0], bp1.topCoords[:, 1], '--g', label='airfoil 1')
+    #plt.plot(bp1.buttomCoords[:, 0], bp1.buttomCoords[:, 1], '--g', label='airfoil 1')
 
     bp2 = BPAirfoil()
     bp2.read_parameters_from_file('../dataOut/airfoil.txt')
     bp2.generate_airfoil(500, show_plot=False)
-    plt2, = plt.plot(bp2.topCoords[:, 0], bp2.topCoords[:, 1], '-g', label='airfoil 2')
-    plt.plot(bp2.buttomCoords[:, 0], bp2.buttomCoords[:, 1], '-g', label='airfoil 2')
+    #plt2, = plt.plot(bp2.topCoords[:, 0], bp2.topCoords[:, 1], '-g', label='airfoil 2')
+    #plt.plot(bp2.buttomCoords[:, 0], bp2.buttomCoords[:, 1], '-g', label='airfoil 2')
 
-    plt.legend(handles=[plt1, plt2])
+    #bp2.plot_airfoil_with_cabin(0.12275856, 0.55, 0.14, -0.00203671)
+
+    bp2.plot_airfoil_with_cabin(0.12275856, 0.55, 0.14, -0.00203671,
+                                        show_plot=True,
+                                        save_plot_path='')
+
+    #plt.legend(handles=[plt1, plt2])
     plt.title('Airfoil with cabin')
     plt.axis('equal')
     plt.show()

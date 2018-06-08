@@ -155,7 +155,7 @@ class Airfoil:
 
 
 
-    def plotAirfoil(self, showPlot=True):
+    def plotAirfoil(self, showPlot=True, showPoints=True):
         xList = []
         yTopList = []
         yButtomList = []
@@ -168,13 +168,17 @@ class Airfoil:
         line1, = ax.plot(xList, yTopList, '-g', label='top Interpol')
         line2, = ax.plot(xList, yButtomList, '-b', label='buttom Interpol')
 
-        line3, = ax.plot(self.airfoilTop[:,0], self.airfoilTop[:,1], '.g', label='top rawData')
-        line4, = ax.plot(self.airfoilButtom[:,0], self.airfoilButtom[:, 1], '.b', label='buttom rawData')
+        if showPoints:
+            line3, = ax.plot(self.airfoilTop[:,0], self.airfoilTop[:,1], '.g', label='top rawData')
+            line4, = ax.plot(self.airfoilButtom[:,0], self.airfoilButtom[:, 1], '.b', label='buttom rawData')
+            ax.legend(handles=[line1, line2, line3, line4])
+        else:
+            ax.legend(handles=[line1, line2])
 
         ax.set(xlabel='x in %', ylabel='y in %', title='WingPlot')
         ax.grid()
         ax.set_aspect('equal', 'datalim')
-        ax.legend(handles=[line1, line2, line3, line4])
+
         # fig.savefig("airfoil.png")
         if showPlot:
             plt.show()
