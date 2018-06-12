@@ -14,7 +14,6 @@ from cfd.CFDrun import CFDrun
 from constants import *
 
 sys.path.insert(0, './OpenMDAO')
-sys.path.insert(0, './pyDOE2')
 
 from openmdao.core.explicitcomponent import ExplicitComponent
 from openmdao.api import Problem, ScipyOptimizeDriver, IndepVarComp, ExplicitComponent, SqliteRecorder
@@ -114,8 +113,8 @@ class AirfoilCFD(ExplicitComponent):
         self.add_input('b_17', val=0.9, desc='')
 
         # just for plotin
-        self.add_input('offsetFront', val=0.1, desc='...')
-        self.add_input('angle', val=.0, desc='...')
+        #self.add_input('offsetFront', val=0.1, desc='...')
+        #self.add_input('angle', val=.0, desc='...')
         #self.add_input('cabin_height', val=.0, desc='...')
 
         ### OUTPUTS
@@ -125,13 +124,17 @@ class AirfoilCFD(ExplicitComponent):
         self.add_output('y_t', val=0.1, desc='max thickness')
 
         self.add_output('cabin_height', val=cabinHeigth)
+        self.add_output('angle', val=.0, desc='...')
+        self.add_output('offsetFront', val=0.1, desc='...')
 
         self.declare_partials('*', '*', method='fd')
         self.executionCounter = 0
+        self.prevAngle = -0.239
+        self.prevOffsetFront = 0.117
 
 
-    def fit_cabin(self, xFront, angle):
-        top, buttom = self.bzFoil.get_cooridnates_top_buttom(500)
+    def calc_max_cabin_height(self, xFront, angle):
+        top, buttom = self.bzFoil.get_cooridnates_top_buttom(100)
         if self.bzFoil.valid == False:
             return False
         xBack = xFront + cabinLength  # inputs['length']
@@ -142,6 +145,82 @@ class AirfoilCFD(ExplicitComponent):
         height = yMaxTop - yMinButtom
         return height
         #outputs['cabin_height'] = height
+
+    def calc_min_y_t(self, offset_front, angle):
+        self.bzFoil.y_t = 0.07
+        init_height = self.calc_max_cabin_height(offset_front, angle)
+        if self.bzFoil.valid:
+            iterCounter = 0
+            height = init_height
+            while (abs(height - cabinHeigth) > 1e-6):
+                self.bzFoil.y_t += cabinHeigth - height
+                height = self.calc_max_cabin_height(offset_front, angle)
+                if height == False or self.bzFoil.y_t > 100 or self.bzFoil.y_t < 0.:
+                    break
+                iterCounter += 1
+                #print('height: ' + str(height) + '\t' + str(self.bzFoil.y_t))
+            #print('calc_min_y_t: needed iterations= ' + str(iterCounter))
+            return height
+        #workaround for invalid airfoil
+        self.bzFoil.y_t = 9999.
+        return -1.
+
+    def optimize_cabin_angle(self, offset_front, angle):
+        iterCounter = 0
+        stepWidth = .01
+        iterStopStepWidth = 1e-6
+
+        height = self.calc_min_y_t(offset_front, angle)
+        act_min_y_t = self.bzFoil.y_t
+        while (abs(stepWidth) > iterStopStepWidth):
+
+            height = self.calc_min_y_t(offset_front, angle + stepWidth)
+            plus_min_y_t = self.bzFoil.y_t
+            if plus_min_y_t < act_min_y_t:
+                angle = angle + stepWidth
+                act_min_y_t = plus_min_y_t
+            else:
+                height = self.calc_min_y_t(offset_front, angle - stepWidth)
+                minus_min_y_t = self.bzFoil.y_t
+                if minus_min_y_t < act_min_y_t:
+                    angle = angle - stepWidth
+                    act_min_y_t = minus_min_y_t
+                else:
+                    stepWidth = stepWidth / 10
+            iterCounter += 1
+            print('new angle: ' + str(angle))
+        print('optimize_cabin_angle: needed iterations= ' + str(iterCounter))
+        return angle
+
+    def optimize_cabin_front_offset(self, offset_front, angle):
+        iterCounter = 0
+        stepWidth = .01
+        iterStopStepWidth = 1e-6
+        newAngle = angle
+        act_angle = self.optimize_cabin_angle(offset_front, newAngle)
+        act_min_y_t = self.bzFoil.y_t
+        while (abs(stepWidth) > iterStopStepWidth):
+
+            plus_angle = self.optimize_cabin_angle(offset_front + stepWidth, newAngle)
+            plus_min_y_t = self.bzFoil.y_t
+            if plus_min_y_t < act_min_y_t:
+                offset_front = offset_front + stepWidth
+                newAngle = plus_angle
+                act_min_y_t = plus_min_y_t
+            else:
+                minus_angle = self.optimize_cabin_angle(offset_front - stepWidth, newAngle)
+                minus_min_y_t = self.bzFoil.y_t
+                if minus_min_y_t < act_min_y_t:
+                    offset_front = offset_front - stepWidth
+                    newAngle = minus_angle
+                    act_min_y_t = minus_min_y_t
+                else:
+                    stepWidth = stepWidth / 10
+                    newAngle = act_angle
+            iterCounter += 1
+            print('new offset_front: ' + str(offset_front))
+        print('optimize_cabin_angle: needed iterations= ' + str(iterCounter))
+        return offset_front, newAngle
 
     def compute(self, inputs, outputs):
         error = False
@@ -172,21 +251,13 @@ class AirfoilCFD(ExplicitComponent):
                                                      param_dump_file=WORKING_DIR+'/'+projectName+'/airfoil.txt')
 
         # check how high the cabin can be
-        height = self.fit_cabin(inputs['offsetFront'], inputs['angle'])
-        if self.bzFoil.valid:
-            iterCounter = 0
-            while (abs(height - cabinHeigth) > 1e-6):
-                self.bzFoil.y_t += cabinHeigth - height
-                height = self.fit_cabin(inputs['offsetFront'], inputs['angle'])
-                if height == False:
-                    break
-                iterCounter += 1
+        outputs['offsetFront'], outputs['angle'] = self.optimize_cabin_front_offset(self.prevOffsetFront, self.prevAngle)
+        self.prevAngle = outputs['angle']
+        outputs['cabin_height'] = self.calc_min_y_t(outputs['offsetFront'], outputs['angle'])
 
-            outputs['cabin_height'] = height
-            outputs['y_t'] = self.bzFoil.y_t
-            print('new cabin_height= ' + str(outputs['cabin_height']))
-            print('needed iterations= ' + str(iterCounter))
-
+        #if self.bzFoil.valid:
+        outputs['y_t'] = self.bzFoil.y_t
+        print('new cabin_height= ' + str(outputs['cabin_height']))
 
         if not self.bzFoil.valid:
             #raise AnalysisError('AirfoilCFD: invalid BPAirfoil')
@@ -195,12 +266,11 @@ class AirfoilCFD(ExplicitComponent):
                 WORKING_DIR + '/bz_error_' + datetime.now().strftime('%Y-%m-%d_%H_%M_%S') + '.txt')
             error = True
         else:
-
-            self.bzFoil.plot_airfoil_with_cabin(inputs['offsetFront'],
+            self.bzFoil.plot_airfoil_with_cabin(outputs['offsetFront'],
                                                 cabinLength,
                                                 outputs['cabin_height'],
-                                                inputs['angle'],
-                                                show_plot=False,
+                                                outputs['angle'],
+                                                show_plot=True,
                                                 save_plot_path=WORKING_DIR + '/' + projectName + '/airfoil_cabin.png')
 
             ### now we do cfd
@@ -238,8 +308,8 @@ class AirfoilCFD(ExplicitComponent):
                          + str(results['CL/CD']) + ','
                          + str(results['Iteration']) + ','
                          + str(outputs['cabin_height']) + ','
-                         + str(inputs['offsetFront']) + ','
-                         + str(inputs['angle']) + ','
+                         + str(outputs['offsetFront']) + ','
+                         + str(outputs['angle']) + ','
                          + str(inputs['r_le']) + ','
                          + str(inputs['beta_te']) + ','
                          + str(inputs['x_t']) + ','
@@ -279,8 +349,8 @@ def runOpenMdao():
     indeps = prob.model.add_subsystem('indeps', IndepVarComp(), promotes=['*'])
     #indeps.add_output('length', .5)
     #indeps.add_output('height', .1)
-    indeps.add_output('offsetFront', .11)
-    indeps.add_output('angle', 0.)
+    #indeps.add_output('offsetFront', .11)
+    #indeps.add_output('angle', 0.)
 
 
     # load defaults from BPAirfoil
@@ -310,8 +380,8 @@ def runOpenMdao():
     #prob.model.add_subsystem('cabin_fitter', CabinFitting())
 
     #prob.model.connect('length', 'cabin_fitter.length')
-    prob.model.connect('offsetFront', 'airfoil_cfd.offsetFront')
-    prob.model.connect('angle', 'airfoil_cfd.angle')
+    #prob.model.connect('offsetFront', 'airfoil_cfd.offsetFront')
+    #prob.model.connect('angle', 'airfoil_cfd.angle')
     #prob.model.connect('cabin_fitter.cabin_height', 'airfoil_cfd.cabin_height')
 
     prob.model.connect('r_le', 'airfoil_cfd.r_le')
@@ -370,8 +440,8 @@ def runOpenMdao():
     prob.model.add_design_var('b_2')#, lower=bp.b_2*lowerPro, upper=bp.b_2*upperPro)
     prob.model.add_design_var('b_17')#, lower=bp.b_17*lowerPro, upper=bp.b_17*upperPro)
 
-    prob.model.add_design_var('offsetFront', lower=0.0, upper=.5)
-    prob.model.add_design_var('angle', lower=-5, upper=5)
+    #prob.model.add_design_var('offsetFront', lower=0.0, upper=.5)
+    #prob.model.add_design_var('angle', lower=-5, upper=5)
 
     prob.model.add_objective('airfoil_cfd.c_d', scaler=1)
 
@@ -387,8 +457,8 @@ def runOpenMdao():
     prob.run_driver()
 
     print('done')
-    print('cabin frontOffset: ' + str(prob['offsetFront']))
-    print('cabin angle: ' + str(-1. * prob['angle']) + ' deg')
+    #print('cabin frontOffset: ' + str(prob['offsetFront']))
+    #print('cabin angle: ' + str(-1. * prob['angle']) + ' deg')
 
     print('c_l= ' + str(prob['airfoil_cfd.c_l']))
     print('c_d= ' + str(prob['airfoil_cfd.c_d']))
