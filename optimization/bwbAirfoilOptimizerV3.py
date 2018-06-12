@@ -14,6 +14,7 @@ from cfd.CFDrun import CFDrun
 from constants import *
 
 sys.path.insert(0, './OpenMDAO')
+sys.path.insert(0, './pyDOE2')
 
 from openmdao.core.explicitcomponent import ExplicitComponent
 from openmdao.api import Problem, ScipyOptimizeDriver, IndepVarComp, ExplicitComponent, SqliteRecorder
