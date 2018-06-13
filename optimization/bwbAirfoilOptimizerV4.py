@@ -60,7 +60,7 @@ config['FREESTREAM_TEMPERATURE'] = str(220.79) #for altitude 10363 m
 #config['GAS_CONSTANT'] = str(287.87)
 #config['REF_LENGTH'] = str(1.0)
 #config['REF_AREA'] = str(1.0)
-config['EXT_ITER'] = str(200)#str(5000)
+config['EXT_ITER'] = str(5000)
 config['OUTPUT_FORMAT'] = 'PARAVIEW'
 
 config['MGLEVEL'] = str(3)
