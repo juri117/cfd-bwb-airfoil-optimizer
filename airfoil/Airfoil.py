@@ -182,7 +182,7 @@ class Airfoil:
         # fig.savefig("airfoil.png")
         if showPlot:
             plt.show()
-        return ax
+        return fig, ax
 
 
 if __name__ == '__main__':

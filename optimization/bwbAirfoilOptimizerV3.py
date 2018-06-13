@@ -38,7 +38,7 @@ MACH_SWEEP_COMPENSATED = MACH_NUMBER * math.sqrt(math.cos(SWEEP_LEADING_EDGE * m
 print('sweep compensated mach number: ' + str(MACH_SWEEP_COMPENSATED))
 
 MACH_NR = MACH_SWEEP_COMPENSATED
-REF_LENGTH = 30.  # cd, cl no effect I guess
+REF_LENGTH = 40.9462  # cd, cl no effect I guess
 REF_AREA = REF_LENGTH  # cd, cl get smaller
 SCALE = REF_LENGTH  # cd, cl get bigger
 
@@ -104,7 +104,7 @@ class AirfoilCFD(ExplicitComponent):
         self.add_input('x_c', val=0.5, desc='woelbungsruecklage')
         self.add_input('y_c', val=0.1, desc='max camber')
         self.add_input('alpha_te', val=-0.1, desc='camber angle trailing edge')
-        self.add_input('z_te', val=0., desc='camber trailing edge')
+        #self.add_input('z_te', val=0., desc='camber trailing edge')
 
         # bezier parameters
         self.add_input('b_8', val=0.05, desc='')
@@ -157,7 +157,8 @@ class AirfoilCFD(ExplicitComponent):
                 self.bzFoil.y_t += cabinHeigth - height
                 height = self.calc_max_cabin_height(offset_front, angle)
                 if height == False or self.bzFoil.y_t > 100 or self.bzFoil.y_t < 0.:
-                    break
+                    self.bzFoil.y_t = 9999.
+                    return -1.
                 iterCounter += 1
                 #print('height: ' + str(height) + '\t' + str(self.bzFoil.y_t))
             #print('calc_min_y_t: needed iterations= ' + str(iterCounter))
@@ -169,7 +170,7 @@ class AirfoilCFD(ExplicitComponent):
     def optimize_cabin_angle(self, offset_front, angle):
         iterCounter = 0
         stepWidth = .01
-        iterStopStepWidth = 1e-6
+        iterStopStepWidth = 1e-3
 
         height = self.calc_min_y_t(offset_front, angle)
         act_min_y_t = self.bzFoil.y_t
@@ -189,15 +190,15 @@ class AirfoilCFD(ExplicitComponent):
                 else:
                     stepWidth = stepWidth / 10
             iterCounter += 1
-            print('new angle: ' + str(angle))
+            print('new angle: ' + str(angle)+'\t'+str(self.bzFoil.y_t))
         print('optimize_cabin_angle: needed iterations= ' + str(iterCounter))
         return angle
 
     def optimize_cabin_front_offset(self, offset_front, angle):
         iterCounter = 0
         stepWidth = .01
-        iterStopStepWidth = 1e-6
-        newAngle = angle
+        iterStopStepWidth = 1e-3
+        newAngle = 0 #angle
         act_angle = self.optimize_cabin_angle(offset_front, newAngle)
         act_min_y_t = self.bzFoil.y_t
         while (abs(stepWidth) > iterStopStepWidth):
@@ -235,7 +236,7 @@ class AirfoilCFD(ExplicitComponent):
         self.bzFoil.x_c = inputs['x_c']
         self.bzFoil.y_c = inputs['y_c']
         self.bzFoil.alpha_te = inputs['alpha_te']
-        self.bzFoil.z_te = inputs['z_te']
+        self.bzFoil.z_te = 0 #inputs['z_te']
 
         self.bzFoil.b_8 = inputs['b_8']
         self.bzFoil.b_15 = inputs['b_15']
@@ -319,7 +320,7 @@ class AirfoilCFD(ExplicitComponent):
                          + str(inputs['x_c']) + ','
                          + str(inputs['y_c']) + ','
                          + str(inputs['alpha_te']) + ','
-                         + str(inputs['z_te']) + ','
+                         + str(self.bzFoil.z_te) + ','
                          + str(inputs['b_8']) + ','
                          + str(inputs['b_15']) + ','
                          + str(inputs['b_0']) + ','
@@ -369,7 +370,7 @@ def runOpenMdao():
     indeps.add_output('x_c', bp.x_c)
     indeps.add_output('y_c', bp.y_c)
     indeps.add_output('alpha_te', bp.alpha_te)
-    indeps.add_output('z_te', bp.z_te)
+    #indeps.add_output('z_te', bp.z_te)
 
     indeps.add_output('b_8', bp.b_8)
     indeps.add_output('b_15', bp.b_15)
@@ -395,7 +396,7 @@ def runOpenMdao():
     prob.model.connect('x_c', 'airfoil_cfd.x_c')
     prob.model.connect('y_c', 'airfoil_cfd.y_c')
     prob.model.connect('alpha_te', 'airfoil_cfd.alpha_te')
-    prob.model.connect('z_te', 'airfoil_cfd.z_te')
+    #prob.model.connect('z_te', 'airfoil_cfd.z_te')
 
     prob.model.connect('b_8', 'airfoil_cfd.b_8')
     prob.model.connect('b_15', 'airfoil_cfd.b_15')
@@ -433,7 +434,7 @@ def runOpenMdao():
     prob.model.add_design_var('x_c')#, lower=bp.x_c*lowerPro, upper=bp.x_c*upperPro)
     prob.model.add_design_var('y_c')#, lower=bp.y_c*lowerPro, upper=bp.y_c*upperPro)
     prob.model.add_design_var('alpha_te')#, lower=bp.alpha_te*upperPro, upper=bp.alpha_te*lowerPro)
-    prob.model.add_design_var('z_te')#, lower=0., upper=0.)
+    #prob.model.add_design_var('z_te')#, lower=0., upper=0.)
 
     prob.model.add_design_var('b_8')#, lower=bp.b_8*lowerPro, upper=bp.b_8*upperPro)
     prob.model.add_design_var('b_15')#, lower=bp.b_15*lowerPro, upper=bp.b_15*upperPro)

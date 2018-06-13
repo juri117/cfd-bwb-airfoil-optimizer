@@ -22,7 +22,7 @@ from datetime import datetime
 from openmdao.core.problem import Problem
 from openmdao.core.indepvarcomp import IndepVarComp
 
-import optimization.cabinFitOptimizer as cabinFit
+import optimization.cabinFitOptimizerV2 as cabinFit
 
 LOG_FILE_PATH = WORKING_DIR + '/om_iterations_' + datetime.now().strftime('%Y-%m-%d_%H_%M_%S') + '.csv'
 
@@ -36,7 +36,7 @@ MACH_SWEEP_COMPENSATED = MACH_NUMBER * math.sqrt(math.cos(SWEEP_LEADING_EDGE * m
 print('sweep compensated mach number: ' + str(MACH_SWEEP_COMPENSATED))
 
 MACH_NR = MACH_SWEEP_COMPENSATED
-REF_LENGTH = 30.  # cd, cl no effect I guess
+REF_LENGTH = 39.9462  # cd, cl no effect I guess
 REF_AREA = REF_LENGTH  # cd, cl get smaller
 SCALE = REF_LENGTH  # cd, cl get bigger
 
@@ -60,7 +60,7 @@ config['FREESTREAM_TEMPERATURE'] = str(220.79) #for altitude 10363 m
 #config['GAS_CONSTANT'] = str(287.87)
 #config['REF_LENGTH'] = str(1.0)
 #config['REF_AREA'] = str(1.0)
-config['EXT_ITER'] = str(5000)
+config['EXT_ITER'] = str(200)#str(5000)
 config['OUTPUT_FORMAT'] = 'PARAVIEW'
 
 config['MGLEVEL'] = str(3)
@@ -147,7 +147,7 @@ class AirfoilCFD(ExplicitComponent):
         self.bzFoil.x_c = inputs['x_c']
         self.bzFoil.y_c = inputs['y_c']
         self.bzFoil.alpha_te = inputs['alpha_te']
-        #self.bzFoil.z_te = inputs['z_te']
+        self.bzFoil.z_te = 0 #inputs['z_te']
 
         self.bzFoil.b_8 = inputs['b_8']
         self.bzFoil.b_15 = inputs['b_15']
