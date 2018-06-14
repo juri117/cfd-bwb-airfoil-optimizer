@@ -330,7 +330,7 @@ def runOpenMdao():
 
     prob.model.add_design_var('gamma_le')#, lower=bp.gamma_le*lowerPro, upper=bp.gamma_le*upperPro)
     prob.model.add_design_var('x_c')#, lower=bp.x_c*lowerPro, upper=bp.x_c*upperPro)
-    prob.model.add_design_var('y_c')#, lower=bp.y_c*lowerPro, upper=bp.y_c*upperPro)
+    prob.model.add_design_var('y_c', lower=0., upper=0.04)#, lower=bp.y_c*lowerPro, upper=bp.y_c*upperPro)
     prob.model.add_design_var('alpha_te')#, lower=bp.alpha_te*upperPro, upper=bp.alpha_te*lowerPro)
     #prob.model.add_design_var('z_te')#, lower=0., upper=0.)
 

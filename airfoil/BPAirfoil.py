@@ -405,7 +405,7 @@ if __name__ == '__main__':
     bp.generate_airfoil(500, show_plot=True)
 
     ###compare arifoils
-
+"""
     bp1 = BPAirfoil()
     bp1.read_parameters_from_file('../dataIn/airfoil.txt')
     bp1.generate_airfoil(500, show_plot=False)
@@ -428,6 +428,7 @@ if __name__ == '__main__':
     plt.title('Airfoil with cabin')
     plt.axis('equal')
     plt.show()
+    """
 
 '''
 # output
