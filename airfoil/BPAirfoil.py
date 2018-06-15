@@ -49,9 +49,11 @@ class BPAirfoil:
         #reset status
         self.valid = True
         # check requirenment
-        if not (0 < self.b_8 < min(self.y_t, math.sqrt(-2 * self.r_le * self.x_t / 3))):
+        if (-2 * self.r_le * self.x_t / 3) < 0. or not(0 < self.b_8 < min(self.y_t, math.sqrt(-2 * self.r_le * self.x_t / 3))):
             print("Parameter b_8 out of bounds!")
             self.valid = False
+            if not param_dump_file == '':
+                self.save_parameters_to_file(param_dump_file)
             return False
 
         # bezier points
