@@ -141,13 +141,14 @@ class AirfoilCFD(ExplicitComponent):
         error = False
         self.bzFoil.r_le = inputs['r_le']
         self.bzFoil.beta_te = inputs['beta_te']
+        self.bzFoil.dz_te = 0.
         self.bzFoil.x_t = inputs['x_t']
 
         self.bzFoil.gamma_le = inputs['gamma_le']
         self.bzFoil.x_c = inputs['x_c']
         self.bzFoil.y_c = inputs['y_c']
         self.bzFoil.alpha_te = inputs['alpha_te']
-        self.bzFoil.z_te = 0 #inputs['z_te']
+        self.bzFoil.z_te = 0.
 
         self.bzFoil.b_8 = inputs['b_8']
         self.bzFoil.b_15 = inputs['b_15']
