@@ -68,13 +68,14 @@ def calc_heightLoss(inputs):
 def run_cabin_opti(show_plot=False):
 
     x0 = [0.08, 0.1, 0.]
-    res = minimize(calc_heightLoss, x0, method='SLSQP', tol=1e-11)
+    bnds = ((0.07, 0.2), (0.02, 0.4), (-5., 5.))
+    res = minimize(calc_heightLoss, x0, method='SLSQP', tol=1e-11, bounds=bnds)
     minimizer_kwargs = {"method": "BFGS"}
 
     #res = basinhopping(calc_heightLoss, x0, minimizer_kwargs=minimizer_kwargs)
-    angle = res.x[2]
     y_t = res.x[0]
     offsetFront = res.x[1]
+    angle = res.x[2]
 
     bzFoil.y_t = y_t
     height, maxHeight = fit_cabin(offsetFront, angle)
