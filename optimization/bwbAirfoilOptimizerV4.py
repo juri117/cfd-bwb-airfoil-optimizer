@@ -322,23 +322,25 @@ def runOpenMdao():
     prob.driver.recording_options['record_constraints'] = True
 
     #limits and constraints
-    prob.model.add_design_var('r_le', upper=0.)#, lower=-1*bp.y_t, upper=0)
-    prob.model.add_design_var('beta_te')#, lower=bp.beta_te*lowerPro, upper=bp.beta_te*upperPro)
+    lowerPro = 0.9
+    upperPro = 1.1
+    prob.model.add_design_var('r_le', lower=-0.1, upper=-0.015)
+    prob.model.add_design_var('beta_te', lower=0, upper=0.3)
     #prob.model.add_design_var('dz_te', lower=0., upper=0.)
-    prob.model.add_design_var('x_t', lower=0.)#, lower=0.25, upper=0.5)
+    prob.model.add_design_var('x_t', lower=0.25, upper=0.4)
     #prob.model.add_design_var('y_t')#, lower=0.075, upper=0.09)
 
-    prob.model.add_design_var('gamma_le')#, lower=bp.gamma_le*lowerPro, upper=bp.gamma_le*upperPro)
-    prob.model.add_design_var('x_c')#, lower=bp.x_c*lowerPro, upper=bp.x_c*upperPro)
-    prob.model.add_design_var('y_c', lower=0., upper=0.04)#, lower=bp.y_c*lowerPro, upper=bp.y_c*upperPro)
-    prob.model.add_design_var('alpha_te')#, lower=bp.alpha_te*upperPro, upper=bp.alpha_te*lowerPro)
+    prob.model.add_design_var('gamma_le', lower=0.05, upper=0.4)
+    prob.model.add_design_var('x_c', lower=0.2, upper=0.5)
+    prob.model.add_design_var('y_c', lower=0., upper=0.04)
+    prob.model.add_design_var('alpha_te', lower=-0.5, upper=0)
     #prob.model.add_design_var('z_te')#, lower=0., upper=0.)
 
-    prob.model.add_design_var('b_8')#, lower=bp.b_8*lowerPro, upper=bp.b_8*upperPro)
-    prob.model.add_design_var('b_15')#, lower=bp.b_15*lowerPro, upper=bp.b_15*upperPro)
-    prob.model.add_design_var('b_0')#, lower=bp.b_0*lowerPro, upper=bp.b_0*upperPro)
-    prob.model.add_design_var('b_2')#, lower=bp.b_2*lowerPro, upper=bp.b_2*upperPro)
-    prob.model.add_design_var('b_17')#, lower=bp.b_17*lowerPro, upper=bp.b_17*upperPro)
+    prob.model.add_design_var('b_8', lower=0.0000001, upper=0.06)
+    prob.model.add_design_var('b_15', lower=0.2, upper=1.)
+    prob.model.add_design_var('b_0', lower=0., upper=0.3)
+    prob.model.add_design_var('b_2', lower=-.1, upper=0.7)
+    prob.model.add_design_var('b_17', lower=0.7, upper=1.)
 
     prob.model.add_objective('airfoil_cfd.c_d', scaler=1)
 
