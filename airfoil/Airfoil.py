@@ -155,7 +155,7 @@ class Airfoil:
 
 
 
-    def plotAirfoil(self, showPlot=True, showPoints=True):
+    def plotAirfoil(self, showPlot=True, showPoints=True, ax=None):
         xList = []
         yTopList = []
         yButtomList = []
@@ -163,8 +163,9 @@ class Airfoil:
             xList.append(x)
             yTopList.append(self.get_top_y(x))
             yButtomList.append(self.get_buttom_y(x))
-
-        fig, ax = plt.subplots()
+        fig = None
+        if ax == None:
+            fig, ax = plt.subplots()
         line1, = ax.plot(xList, yTopList, '-g', label='top Interpol')
         line2, = ax.plot(xList, yButtomList, '-b', label='buttom Interpol')
 

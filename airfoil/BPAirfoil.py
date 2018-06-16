@@ -147,7 +147,7 @@ class BPAirfoil:
         self.buttomCoords = np.array([x[::-1], yBut[::-1]]).transpose()
         return np.vstack((np.array([x, yTop]).transpose(), np.array([x[::-1], yBut[::-1]]).transpose()))[:-1]
 
-    def plot_airfoil_with_cabin(self, offsetFront, length, height, angle, show_plot=True, save_plot_path='', clear_plot=True):
+    def plot_airfoil_with_cabin(self, offsetFront, length, height, angle, show_plot=True, save_plot_path='', clear_plot=True, ax=None):
         top, buttom = self.get_cooridnates_top_buttom(500)
         #if bzFoil.valid == False:
         #    return False, False
@@ -174,7 +174,8 @@ class BPAirfoil:
         (px_or, py_or) = air.rotatePoint((0, 0), (px_or, py_or), -angle)
         (px_ur, py_ur) = air.rotatePoint((0, 0), (px_ur, py_ur), -angle)
         air.rotate(0.)
-        fig, ax = air.plotAirfoil(showPlot=False, showPoints=False)
+
+        fig, ax = air.plotAirfoil(showPlot=False, showPoints=False, ax=ax)
         ax.plot([px_ol, px_ul, px_ur, px_or, px_ol], [py_ol, py_ul, py_ur, py_or, py_ol], 'rx-')
         #plt.show()
 
@@ -407,64 +408,63 @@ if __name__ == '__main__':
     bp.generate_airfoil(500, show_plot=True)
 
     ###compare arifoils
-"""
+    fig, ax = plt.subplots()
     bp1 = BPAirfoil()
-    bp1.read_parameters_from_file('../dataIn/airfoil.txt')
+    #bp1.read_parameters_from_file('../dataIn/airfoil.txt')
     bp1.generate_airfoil(500, show_plot=False)
-    #plt1, = plt.plot(bp1.topCoords[:, 0], bp1.topCoords[:, 1], '--g', label='airfoil 1')
+    plt1, = plt.plot(bp1.topCoords[:, 0], bp1.topCoords[:, 1], '-b', label='airfoil 1')
     #plt.plot(bp1.buttomCoords[:, 0], bp1.buttomCoords[:, 1], '--g', label='airfoil 1')
 
     bp2 = BPAirfoil()
     bp2.read_parameters_from_file('../dataOut/airfoil.txt')
     bp2.generate_airfoil(100, show_plot=False)
-    #plt2, = plt.plot(bp2.topCoords[:, 0], bp2.topCoords[:, 1], '-g', label='airfoil 2')
+    plt2, = plt.plot(bp2.topCoords[:, 0], bp2.topCoords[:, 1], '-g', label='airfoil 2')
     #plt.plot(bp2.buttomCoords[:, 0], bp2.buttomCoords[:, 1], '-g', label='airfoil 2')
 
     #bp2.plot_airfoil_with_cabin(0.12275856, 0.55, 0.14, -0.00203671)
 
-    bp2.plot_airfoil_with_cabin(0.12275856, 0.55, 0.14, -0.00203671,
-                                        show_plot=True,
-                                        save_plot_path='')
+    bp2.plot_airfoil_with_cabin(0.11701586, 0.55, 0.13999999, -0.23185513,
+                                        show_plot=False,
+                                        save_plot_path='', clear_plot=False, ax=ax)
 
     #plt.legend(handles=[plt1, plt2])
     plt.title('Airfoil with cabin')
     plt.axis('equal')
     plt.show()
-    """
 
-'''
-# output
-plt.plot([x0_tle,x1_tle,x2_tle,x3_tle,x0_tte,x1_tte,x2_tte,x3_tte,x4_tte],[y0_tle,y1_tle,y2_tle,y3_tle,y0_tte,y1_tte,y2_tte,y3_tte,y4_tte],'bx')
-plt.title('Bezier points thickness curve')
-#plt.xlim(0,1)
-#plt.ylim(0,0.15)
-plt.axis('equal')
-plt.show()
-plt.plot([x0_cle,x1_cle,x2_cle,x3_cle,x0_cte,x1_cte,x2_cte,x3_cte,x4_cte],[y0_cle,y1_cle,y2_cle,y3_cle,y0_cte,y1_cte,y2_cte,y3_cte,y4_cte],'rx')
-plt.title('Bezier points camber curve')
-plt.axis('equal')
-plt.show()
 
-# plots
-points=np.linspace(0,1,100)
-pointsThicknessCurve=list(map(thicknessCurve,points))
-xThick = [i[0] for i in pointsThicknessCurve]
-yThick = [i[1] for i in pointsThicknessCurve]
-#plt.plot(pointsThicknessCurve)
-#plt.show()
-plt.plot(xThick, yThick)
-plt.title('Thickness curve')
-plt.axis('equal')
-plt.show()
-
-pointsCamberCurve=list(map(camberCurve,points))
-xCam = [i[0] for i in pointsCamberCurve]
-yCam = [i[1] for i in pointsCamberCurve]
-#plt.plot(pointsCamberCurve)
-#plt.show()
-plt.plot(xCam, yCam)
-plt.title('Camber curve')
-plt.axis('equal')
-plt.show()
-'''
-
+    '''
+    # output
+    plt.plot([x0_tle,x1_tle,x2_tle,x3_tle,x0_tte,x1_tte,x2_tte,x3_tte,x4_tte],[y0_tle,y1_tle,y2_tle,y3_tle,y0_tte,y1_tte,y2_tte,y3_tte,y4_tte],'bx')
+    plt.title('Bezier points thickness curve')
+    #plt.xlim(0,1)
+    #plt.ylim(0,0.15)
+    plt.axis('equal')
+    plt.show()
+    plt.plot([x0_cle,x1_cle,x2_cle,x3_cle,x0_cte,x1_cte,x2_cte,x3_cte,x4_cte],[y0_cle,y1_cle,y2_cle,y3_cle,y0_cte,y1_cte,y2_cte,y3_cte,y4_cte],'rx')
+    plt.title('Bezier points camber curve')
+    plt.axis('equal')
+    plt.show()
+    
+    # plots
+    points=np.linspace(0,1,100)
+    pointsThicknessCurve=list(map(thicknessCurve,points))
+    xThick = [i[0] for i in pointsThicknessCurve]
+    yThick = [i[1] for i in pointsThicknessCurve]
+    #plt.plot(pointsThicknessCurve)
+    #plt.show()
+    plt.plot(xThick, yThick)
+    plt.title('Thickness curve')
+    plt.axis('equal')
+    plt.show()
+    
+    pointsCamberCurve=list(map(camberCurve,points))
+    xCam = [i[0] for i in pointsCamberCurve]
+    yCam = [i[1] for i in pointsCamberCurve]
+    #plt.plot(pointsCamberCurve)
+    #plt.show()
+    plt.plot(xCam, yCam)
+    plt.title('Camber curve')
+    plt.axis('equal')
+    plt.show()
+    '''
