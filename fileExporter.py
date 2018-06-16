@@ -13,6 +13,7 @@ from cfd.CFDrun import CFDrun
 from airfoil.BPAirfoil import BPAirfoil
 from airfoil.Airfoil import Airfoil
 from constants import *
+import optimization.cabinFitOptimizerV2 as cabin
 
 
 
@@ -72,9 +73,16 @@ outputF.write('%\n')
 outputF.write('%               <------------------------>\n')
 outputF.write('%                            1\n')
 
-angle = 0.
-offsetFront = 0.11
 length = 0.55
+prevY_t = bp.y_t
+cabin.bzFoil = bp
+cabin.cabinLength = length
+y_t, height, angle, offsetFront = cabin.run_cabin_opti()
+if abs(prevY_t - y_t) > 1e-4:
+    print("ERROR: reoptimization of y_t found a different solution")
+
+#angle = 0.
+#offsetFront = 0.11
 air = Airfoil(INPUT_DIR+'/'+'airfoil.dat')
 air.rotate(angle)
 #air.rotate(angle)
@@ -96,7 +104,7 @@ print('geometrical calculated height = ' + str(py_ol - py_ul))
 (px_or, py_or) = air.rotatePoint((0, 0), (px_or, py_or), -angle)
 (px_ur, py_ur) = air.rotatePoint((0, 0), (px_ur, py_ur), -angle)
 air.rotate(0.)
-ax = air.plotAirfoil(showPlot=False)
+fig, ax = air.plotAirfoil(showPlot=False, showPoints=False)
 ax.plot([px_ol, px_ul, px_ur, px_or, px_ol], [py_ol, py_ul, py_ur, py_or, py_ol], 'rx-')
 plt.show()
 outputF.write('aircraft.centerbody.px_ol\t= {:.7f};\n'.format(px_ol))

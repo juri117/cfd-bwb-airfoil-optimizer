@@ -310,7 +310,8 @@ def runOpenMdao():
 
     # setup the optimization
     prob.driver = ScipyOptimizeDriver()
-    prob.driver.options['optimizer'] = 'SLSQP'
+    #'Nelder-Mead', 'Powell', 'CG', 'BFGS', 'Newton-CG', 'L-BFGS-B', 'TNC', 'COBYLA', 'SLSQP']
+    prob.driver.options['optimizer'] = 'COBYLA'
     prob.driver.options['tol'] = 1e-6
     prob.driver.options['maxiter'] = 100000
 
