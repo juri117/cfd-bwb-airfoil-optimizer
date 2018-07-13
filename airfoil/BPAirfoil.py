@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import interp1d
 from operator import add
+from matplotlib import rc
 from airfoil.Airfoil import Airfoil
 
 
@@ -175,8 +176,9 @@ class BPAirfoil:
         (px_ur, py_ur) = air.rotatePoint((0, 0), (px_ur, py_ur), -angle)
         air.rotate(0.)
 
-        fig, ax = air.plotAirfoil(showPlot=False, showPoints=False, ax=ax)
-        ax.plot([px_ol, px_ul, px_ur, px_or, px_ol], [py_ol, py_ul, py_ur, py_or, py_ol], 'rx-')
+        #fig, ax = air.plotAirfoil(showPlot=False, showPoints=False, ax=ax)
+
+        ax.plot([px_ol, px_ul, px_ur, px_or, px_ol], [py_ol, py_ul, py_ur, py_or, py_ol], 'rx-', label='cabin', color='#AD031B')
         #plt.show()
 
         plt.axis('equal')
@@ -188,7 +190,6 @@ class BPAirfoil:
             plt.show()
         if clear_plot:
             plt.clf()
-
 
 
 
@@ -404,22 +405,29 @@ class BPAirfoil:
 
 
 if __name__ == '__main__':
-    bp = BPAirfoil()
-    bp.generate_airfoil(500, show_plot=True)
+    #bp = BPAirfoil()
+    #bp.generate_airfoil(500, show_plot=True)
 
     ###compare arifoils
+
+    FONT_SIZE = 14
+    font = {'family': 'sans-serif', 'size': FONT_SIZE}
+
     fig, ax = plt.subplots()
+    #rc('text', usetex=True)
+    rc('font', **font)
+
     bp1 = BPAirfoil()
     #bp1.read_parameters_from_file('../dataIn/airfoil.txt')
-    bp1.generate_airfoil(500, show_plot=False)
-    plt1, = plt.plot(bp1.topCoords[:, 0], bp1.topCoords[:, 1], '-b', label='airfoil 1')
-    #plt.plot(bp1.buttomCoords[:, 0], bp1.buttomCoords[:, 1], '--g', label='airfoil 1')
+    bp1.generate_airfoil(1000, show_plot=False)
+    plt1, = plt.plot(bp1.topCoords[:, 0], bp1.topCoords[:, 1], '--g', label='starting airfoil', color='#B5B5B5')
+    plt.plot(bp1.buttomCoords[:, 0], bp1.buttomCoords[:, 1], '--g', color='#B5B5B5')#, label='airfoil 1')
 
     bp2 = BPAirfoil()
     bp2.read_parameters_from_file('../dataOut/airfoil.txt')
-    bp2.generate_airfoil(100, show_plot=False)
-    plt2, = plt.plot(bp2.topCoords[:, 0], bp2.topCoords[:, 1], '-g', label='airfoil 2')
-    #plt.plot(bp2.buttomCoords[:, 0], bp2.buttomCoords[:, 1], '-g', label='airfoil 2')
+    bp2.generate_airfoil(1000, show_plot=False)
+    plt2, = plt.plot(bp2.topCoords[:, 0], bp2.topCoords[:, 1], '-b', label='optimized airfoil', color='#437CAF')
+    plt.plot(bp2.buttomCoords[:, 0], bp2.buttomCoords[:, 1], '-b', color='#437CAF')#, label='airfoil 2')
 
     #bp2.plot_airfoil_with_cabin(0.12275856, 0.55, 0.14, -0.00203671)
 
@@ -428,8 +436,20 @@ if __name__ == '__main__':
                                         save_plot_path='', clear_plot=False, ax=ax)
 
     #plt.legend(handles=[plt1, plt2])
-    plt.title('Airfoil with cabin')
-    plt.axis('equal')
+    #plt.title('Airfoil with cabin')
+    ax.tick_params(labelsize=FONT_SIZE, length=6, width=2)
+
+    plt.gca().set_adjustable("box")
+    plt.gca().set_ylim(-.1, .2)
+    #ax.set_ylim(-0.2, 0.3)
+    #plt.axis('equal')
+    ax.set_xlabel('x', fontdict=font)
+    ax.set_ylabel('-z', fontdict=font)
+    plt.legend(loc='upper left', ncol=3, mode="expand")
+    fig.set_size_inches(9, 3.)
+    plt.subplots_adjust(top=1., bottom=0.12, left=0.1, right=0.97, hspace=0.,
+                        wspace=0.)
+    plt.savefig('../dataOut/04_optimizedAirfoil.pdf')
     plt.show()
 
 
