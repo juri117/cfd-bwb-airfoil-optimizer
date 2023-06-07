@@ -10,10 +10,13 @@ This program implements an openMdao component, that optimizes an airfoil for min
     - http://openmdao.org/
 - su2:
   - https://su2code.github.io/download.html
+  - the version used here is: 6.0.0 "Falcon"
 - construct2d(recommended):
   - https://sourceforge.net/projects/construct2d/
+  - the version used here is: 2.1.4
 - or gmsh:
   - http://gmsh.info/
+  - the version used here is: 3.7.5
 
 ## Setup:
 
